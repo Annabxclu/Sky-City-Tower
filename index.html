@@ -231,11 +231,11 @@ for (const cat in BIZ_DEF) BIZ_DEF[cat].forEach(([id,name,emoji,prods])=>{
   BIZ[id]=b; BIZ_LIST.push(b);
 });
 const LIVING = {
-  apartments:{name:'Apartments', emoji:'🏢', cap:4, w:30, lv:[40,30,18,9,3], c:'#8fa8c8', d:'#5d7699', note:'4 rooms · everyday residents'},
-  motel:     {name:'Motel',      emoji:'🛏️', cap:3, w:25, lv:[60,30,8,2,0],  c:'#c9a27a', d:'#946d45', note:'3 rooms · mostly beginners'},
+  apartments:{name:'Apartments', emoji:'🏢', cap:5, w:30, lv:[40,30,18,9,3], c:'#8fa8c8', d:'#5d7699', note:'5 rooms · everyday residents'},
+  motel:     {name:'Motel',      emoji:'🛏️', cap:5, w:25, lv:[60,30,8,2,0],  c:'#c9a27a', d:'#946d45', note:'5 rooms · mostly beginners'},
   hotel:     {name:'Hotel',      emoji:'🏨', cap:5, w:22, lv:[35,30,20,10,5], c:'#9c8fd6', d:'#6a5db0', note:'5 rooms · mixed skill'},
-  resort:    {name:'Resort',     emoji:'🏝️', cap:6, w:12, lv:[12,28,32,18,10],c:'#5cc8d6', d:'#2b95a3', note:'6 rooms · skilled residents'},
-  villa:     {name:'Villa',      emoji:'🏡', cap:3, w:11, lv:[0,0,45,35,20], c:'#e2b54f', d:'#a9801f', note:'3 rooms · experts only (★3–★5)'}
+  resort:    {name:'Resort',     emoji:'🏝️', cap:5, w:12, lv:[12,28,32,18,10],c:'#5cc8d6', d:'#2b95a3', note:'5 rooms · skilled residents'},
+  villa:     {name:'Villa',      emoji:'🏡', cap:5, w:11, lv:[0,0,45,35,20], c:'#e2b54f', d:'#a9801f', note:'5 rooms · experts only (★3–★5)'}
 };
 const PROD = [{t:20,c:30,q:10,r:2.5},{t:60,c:90,q:15,r:2.8},{t:150,c:240,q:20,r:3.2}];
 const BONUS = [0,.10,.15,.25,.35,.50];
@@ -428,7 +428,7 @@ function arriveShopper(sh){
   const fi=sh.dest-1, f=S.floors[fi]; let txt='', total=0;
   if(f&&f.kind==='business'){
     const st=f.slots.map((s,i)=>i).filter(i=>f.slots[i].state==='stocked');
-    if(st.length){const si=pick(st); const r=sellUnits(f,si,rnd(2,4)); total+=r.coins; txt=BIZ[f.biz].products[si].emoji+' ';}
+    if(st.length){const si=pick(st); const r=sellUnits(f,si,1); total+=r.coins; txt=BIZ[f.biz].products[si].emoji+' ';}
   }
   const tip=Math.round((3+Math.random()*4)*mult(Math.max(0,fi))); addCoins(tip); total+=tip;
   floatText(sh.dest, txt+'+🪙'+fmt(total));
