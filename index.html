@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Sky City Tower</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;font-family:'Fredoka',system-ui,sans-serif;background:#2d3a8c;color:#2b2b3a;user-select:none;-webkit-user-select:none}
+button{font-family:inherit;cursor:pointer;border:none}
+#app{position:fixed;inset:0;display:flex;flex-direction:column}
+#hud{flex:none;display:flex;align-items:center;gap:6px;padding:8px 10px;background:linear-gradient(#24306f,#1c2659);color:#fff;box-shadow:0 3px 10px rgba(0,0,0,.3);z-index:5}
+.stat{background:rgba(255,255,255,.14);border-radius:999px;padding:4px 10px;font-weight:600;font-size:15px;white-space:nowrap}
+#hc{min-width:86px}
+.hbtn{margin-left:auto;background:#ffcc33;color:#5a3b00;border-radius:12px;padding:6px 10px;font-weight:700;font-size:14px;box-shadow:0 3px 0 #c79500}
+.hbtn+.hbtn{margin-left:0}
+.hbtn.grey{background:#e6e9ff;color:#24306f;box-shadow:0 3px 0 #a8afe0}
+#scroller{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;position:relative}
+#sky{min-height:100%;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(to top,#dff4ff 0%,#9fd8ff 25%,#6aa6ef 55%,#3f5fc7 80%,#232c78 100%);position:relative}
+#tower{position:relative;width:100%;max-width:480px;margin:0 auto}
+.cloud{position:absolute;font-size:60px;opacity:.55;pointer-events:none;filter:blur(.3px)}
+.floor{height:124px;position:relative;padding:4px 6px 4px 50px}
+.fcard{height:100%;border-radius:14px;background:var(--c);border:3px solid var(--d);display:flex;flex-direction:column;padding:4px 6px 6px;box-shadow:inset 0 -4px 0 rgba(0,0,0,.12),0 2px 0 rgba(0,0,0,.15);position:relative;overflow:hidden}
+.fhead{display:flex;align-items:center;gap:6px;font-weight:600;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35);font-size:14px;height:22px;flex:none;background:none;padding:0;text-align:left;width:100%}
+.fnum{background:rgba(0,0,0,.28);border-radius:7px;padding:0 6px;font-size:12px;min-width:24px;text-align:center}
+.fname{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fchip{font-size:11px;background:rgba(255,255,255,.25);border-radius:999px;padding:0 7px}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;flex:1;margin-top:3px;min-height:0}
+.slot{background:#fffdf7;border-radius:10px;padding:3px 4px 4px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;font-size:11px;color:#333;position:relative;overflow:hidden;box-shadow:0 2px 0 rgba(0,0,0,.12);min-width:0}
+.slot:active{transform:translateY(1px)}
+.slot .emp{position:absolute;top:2px;left:3px;font-size:16px;line-height:1}
+.slot .lv{position:absolute;top:2px;right:3px;font-size:9px;font-weight:700;background:#ffd23f;color:#6b4a00;border-radius:6px;padding:0 4px}
+.slot .pe{font-size:22px;line-height:1;margin-top:8px}
+.slot .pn{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;margin:1px 0 2px;color:#555}
+.slot .st{font-size:10.5px;font-weight:600;width:100%;text-align:center;border-radius:6px;padding:1px 0;line-height:15px}
+.slot.nohire .pe,.slot.nohire .pn{opacity:.35}
+.st.hire{background:#8e7cf0;color:#fff}
+.st.stock{background:#2ebd6b;color:#fff}
+.st.poor{background:#bbb;color:#fff}
+.bar{height:6px;background:#e8e8ee;border-radius:3px;overflow:hidden;width:100%}
+.bar>i{display:block;height:100%;background:#3fa9f5;border-radius:3px;transition:width .25s linear}
+.bar.q>i{background:#ff9f1c}
+.stx{display:flex;justify-content:space-between;width:100%;font-size:10px;font-weight:600;color:#555;margin-bottom:1px}
+.lobby .fcard{--c:#f4e7cf;--d:#c9a86a;}
+.lobby .fhead{color:#7a5520;text-shadow:none}
+.lobbyfloor{flex:1;display:flex;align-items:flex-end;gap:2px;font-size:26px;padding:0 4px;overflow:hidden}
+.ground{height:30px;background:linear-gradient(#6cc04a,#4f9a35);border-top:4px solid #8ad85f}
+.rooms{flex:1;display:grid;gap:4px;margin-top:4px}
+.room{background:rgba(255,255,255,.85);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;position:relative}
+.room.empty{background:rgba(255,255,255,.35);font-size:14px;opacity:.7}
+.room .wk{position:absolute;bottom:1px;right:2px;font-size:9px}
+.construct .fcard{background:repeating-linear-gradient(45deg,#ffd84d 0 14px,#3a3a3a 14px 28px);border-color:#3a3a3a}
+.cbox{background:rgba(255,255,255,.93);border-radius:10px;margin-top:4px;flex:1;padding:6px 8px;display:flex;flex-direction:column;justify-content:center;gap:4px;font-size:12px}
+.cbox .bar{height:9px}
+.cbox .bar>i{background:#ff7b29}
+.crow{display:flex;justify-content:space-between;align-items:center;font-weight:600}
+.mini{background:#7b5cff;color:#fff;border-radius:8px;padding:3px 8px;font-size:11px;font-weight:600}
+.roof{height:120px;padding:6px 6px 4px 50px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;position:relative}
+.roof .crane{font-size:40px;position:absolute;left:60px;bottom:52px}
+.buildbtn{width:100%;background:linear-gradient(#ffd84d,#ffb81c);border-radius:14px;padding:10px;font-weight:700;font-size:16px;color:#5a3b00;box-shadow:0 4px 0 #c78400}
+.buildbtn small{display:block;font-weight:500;font-size:12px}
+#shaft{position:absolute;left:8px;width:36px;bottom:30px;background:linear-gradient(90deg,#3b3f58 0 3px,#575c7c 3px 33px,#3b3f58 33px);border-radius:6px 6px 0 0}
+#car{position:absolute;left:2px;width:32px;height:50px;background:linear-gradient(#ffe27a,#ffbe2e);border:2px solid #b27c00;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+#car::before{content:'';position:absolute;top:-8px;left:50%;width:2px;height:8px;background:#222}
+#fx{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.float{position:absolute;left:60px;font-weight:700;font-size:16px;color:#fff;text-shadow:0 2px 3px rgba(0,0,0,.6),0 0 2px #000;animation:floatUp 1.6s ease-out forwards;white-space:nowrap}
+@keyframes floatUp{0%{transform:translateY(0);opacity:0}15%{opacity:1}100%{transform:translateY(-55px);opacity:0}}
+#lobbybar{flex:none;display:flex;align-items:center;gap:8px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:linear-gradient(#5a3d1e,#3f2a13);box-shadow:0 -3px 10px rgba(0,0,0,.3);z-index:5}
+#queue{flex:1;display:flex;gap:4px;overflow-x:auto;min-height:52px;align-items:center}
+.shopper{flex:none;width:42px;height:48px;border-radius:12px;background:#fff6e5;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:21px;line-height:1;position:relative;padding:0}
+.shopper .dn{font-size:10px;font-weight:700;color:#fff;background:#4a6cf7;border-radius:6px;padding:0 4px;margin-top:2px}
+.shopper.vip{background:linear-gradient(#fff3a8,#ffcf3f);box-shadow:0 0 0 2px #fff,0 0 10px #ffd23f;animation:glow 1.2s ease-in-out infinite alternate}
+.shopper.vip .dn{background:#d63384}
+@keyframes glow{to{box-shadow:0 0 0 2px #fff,0 0 18px #ffb000}}
+.qempty{color:#e8d5b5;font-size:13px}
+#rideBtn{flex:none;background:linear-gradient(#56d47f,#25a552);color:#fff;border-radius:14px;padding:10px 14px;font-weight:700;font-size:16px;box-shadow:0 4px 0 #1b7a3c;min-width:92px;line-height:1.1}
+#rideBtn small{display:block;font-size:11px;font-weight:500}
+#rideBtn:disabled{background:#888;box-shadow:0 4px 0 #555;opacity:.8}
+#rideBtn.vipride{background:linear-gradient(#ff7ac0,#d63384);box-shadow:0 4px 0 #8e1d55}
+#sheet{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;justify-content:flex-end}
+#sheet.hidden{display:none}
+.sheet-bg{position:absolute;inset:0;background:rgba(10,15,40,.55)}
+.sheet-panel{position:relative;background:#fffaf0;border-radius:22px 22px 0 0;max-height:82%;overflow-y:auto;padding:16px 16px calc(18px + env(safe-area-inset-bottom));animation:up .22s ease-out;max-width:560px;width:100%;margin:0 auto}
+@keyframes up{from{transform:translateY(40px);opacity:.4}}
+.sheet-panel h2{margin:0 0 2px;font-size:21px}
+.sub{color:#777;font-size:13px;margin-bottom:10px}
+.x{position:absolute;right:12px;top:12px;background:#eee;border-radius:50%;width:32px;height:32px;font-size:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.catbtn{border-radius:14px;padding:10px 4px;color:#fff;font-weight:600;font-size:12px;text-shadow:0 1px 2px rgba(0,0,0,.3);display:flex;flex-direction:column;align-items:center;gap:3px;box-shadow:0 3px 0 rgba(0,0,0,.2);min-height:84px;justify-content:center;line-height:1.15}
+.catbtn b{font-size:28px;line-height:1}
+.catbtn:disabled{filter:grayscale(.9);opacity:.6}
+.row{display:flex;align-items:center;gap:10px;padding:10px;background:#fff;border-radius:14px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.row.dream{background:#fff7d6;box-shadow:0 0 0 2px #ffd23f}
+.row .big{font-size:30px;line-height:1;flex:none}
+.grow{flex:1;min-width:0}
+.grow b{display:block;font-size:15px}
+.small{font-size:12px;color:#666;line-height:1.35}
+.tag{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:0 6px;background:#ffd23f;color:#6b4a00;margin-left:4px}
+.tag.g{background:#d6f5e2;color:#16773c}
+.btn{background:#4a6cf7;color:#fff;border-radius:10px;padding:8px 12px;font-weight:600;font-size:14px;flex:none;box-shadow:0 3px 0 #2e47b5}
+.btn.green{background:#2ebd6b;box-shadow:0 3px 0 #1b7a3c}
+.btn.red{background:#ef5a5a;box-shadow:0 3px 0 #a92f2f}
+.btn.gold{background:#ffbe2e;color:#5a3b00;box-shadow:0 3px 0 #b27c00}
+.btn.pink{background:#d63384;box-shadow:0 3px 0 #8e1d55}
+.btn.ghost{background:#eceef8;color:#333;box-shadow:0 3px 0 #c6c9db}
+.btn:disabled{opacity:.45}
+.btn.wide{width:100%;padding:12px;font-size:16px;margin-top:6px}
+.stars{color:#f5a500;letter-spacing:-1px}
+.hero{text-align:center;font-size:64px;line-height:1.1;margin:6px 0}
+.center{text-align:center}
+.help p{margin:6px 0;font-size:14px;line-height:1.45}
+.sect{font-weight:700;font-size:13px;color:#888;margin:12px 0 6px;text-transform:uppercase;letter-spacing:.5px}
+#toasts{position:fixed;top:60px;left:0;right:0;z-index:30;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
+.toast{background:rgba(25,30,70,.93);color:#fff;padding:8px 14px;border-radius:12px;font-size:13px;max-width:92%;animation:tin .25s ease-out;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.toast.out{opacity:0;transition:opacity .4s}
+@keyframes tin{from{transform:translateY(-12px);opacity:0}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="hud">
+    <div class="stat" id="hc">🪙 0</div>
+    <div class="stat" id="hg">💎 0</div>
+    <div class="stat" id="hp">👥 0/0</div>
+    <button class="hbtn" data-a="build">🏗️</button>
+    <button class="hbtn grey" data-a="menu">☰</button>
+  </header>
+  <main id="scroller">
+    <div id="sky">
+      <div id="tower">
+        <div id="floors"></div>
+        <div id="shaft"><div id="car"></div></div>
+        <div id="fx"></div>
+      </div>
+    </div>
+  </main>
+  <footer id="lobbybar">
+    <div id="queue"></div>
+    <button id="rideBtn" data-a="ride">▲ RIDE</button>
+  </footer>
+</div>
+<div id="sheet" class="hidden"><div class="sheet-bg" data-a="close"></div><div class="sheet-panel" id="sheetBody"></div></div>
+<div id="toasts"></div>
+
+<script>
+(function(){
+'use strict';
+// ---------- DATA ----------
+const H = 124, GROUND = 30, KEY = 'skyCityTower_v1';
+const CATS = {
+  food:   {name:'Food & Beverage', emoji:'🍜', c:'#ff9a62', d:'#d96a2f'},
+  ent:    {name:'Entertainment & Leisure', emoji:'🎮', c:'#b77be0', d:'#8a4fb8'},
+  health: {name:'Healthcare & Wellness', emoji:'🩺', c:'#3fc1b0', d:'#22897b'},
+  tech:   {name:'Technology & Software', emoji:'💻', c:'#5ba8f0', d:'#2f73c0'},
+  retail: {name:'Retail & E-Commerce', emoji:'🛍️', c:'#f2709c', d:'#c2406c'},
+  edu:    {name:'Education & Training', emoji:'🎓', c:'#f5c542', d:'#c39317'},
+  fin:    {name:'Finance & Professional Services', emoji:'💼', c:'#6cc785', d:'#3c9556'},
+  constr: {name:'Construction & Trades', emoji:'🔨', c:'#b58b6a', d:'#7f5a3d'}
+};
+const BIZ_DEF = {
+  food:[
+    ['boba','Boba Factory','🧋',[['Brown Sugar Boba','🧋'],['Mango Slush','🥭'],['Matcha Latte','🍵']]],
+    ['sushi','Sushi Sky Bar','🍣',[['California Roll','🍣'],['Miso Soup','🥣'],['Dragon Roll','🐉']]],
+    ['pizza','Pizza Penthouse','🍕',[['Pepperoni Slice','🍕'],['Garlic Knots','🥖'],['Deep Dish Pie','🥧']]],
+    ['taco','Taco Tower','🌮',[['Street Tacos','🌮'],['Loaded Nachos','🧀'],['Burrito Bowl','🌯']]],
+    ['donut','Donut Dynasty','🍩',[['Glazed Donut','🍩'],['Cold Brew','☕'],['Cronut','🥐']]],
+    ['ramen','Ramen Rooftop','🍜',[['Tonkotsu Ramen','🍜'],['Gyoza','🥟'],['Spicy Miso Bowl','🌶️']]]
+  ],
+  ent:[
+    ['arcade','Pixel Arcade','🕹️',[['Token Pack','🎰'],['Claw Prize','🧸'],['VR Session','🥽']]],
+    ['cinema','Cloud Cinema','🎬',[['Popcorn','🍿'],['Movie Ticket','🎟️'],['IMAX Pass','🎥']]],
+    ['bowl','Strike Zone Bowling','🎳',[['Shoe Rental','👟'],['Lane Hour','🎳'],['Party Package','🎉']]],
+    ['karaoke','Karaoke Cloud','🎤',[['Song Credits','🎶'],['Private Room','🚪'],['Star Night','🌟']]],
+    ['escape','Escape Room 88','🔐',[['Puzzle Box','🧩'],['Mystery Room','🗝️'],['Haunted Suite','👻']]],
+    ['comedy','Laugh Loft','🎭',[['Open Mic','🎙️'],['Show Ticket','🎫'],['Headliner Night','🎭']]]
+  ],
+  health:[
+    ['yoga','Zen Yoga Studio','🧘',[['Drop-in Class','🧘'],['Aroma Oils','🌿'],['Retreat Pass','🏝️']]],
+    ['dental','Sky Dental','🦷',[['Cleaning','🪥'],['Whitening','✨'],['Braces','😁']]],
+    ['spa','Glow Spa','💆',[['Face Mask','🧖'],['Massage','💆'],['Spa Day','🛁']]],
+    ['vitamin','Vitamin Vault','💊',[['Multivitamin','💊'],['Protein Shake','🥤'],['Wellness Kit','🧺']]],
+    ['gym','Iron Peak Gym','🏋️',[['Day Pass','🎫'],['Personal Training','💪'],['Annual Membership','🏆']]],
+    ['clinic','Sunrise Clinic','🩺',[['Check-up','🩺'],['Flu Shot','💉'],['Full Physical','📋']]]
+  ],
+  tech:[
+    ['byte','Byte Labs','🧪',[['Bug Fix','🐞'],['Website Build','🌐'],['AI Chatbot','🤖']]],
+    ['cloud9','Cloud Nine Software','☁️',[['App License','📲'],['Cloud Storage','💾'],['Enterprise Suite','🏢']]],
+    ['gadget','Gadget Garage','🔌',[['Phone Case','📱'],['Earbuds','🎧'],['Smartwatch','⌚']]],
+    ['robo','Robo Repair','🤖',[['Screen Fix','🛠️'],['Battery Swap','🔋'],['Robot Tune-up','⚙️']]],
+    ['appforge','App Forge','📱',[['Mini Game','🎮'],['Fitness App','🏃'],['Super App','🚀']]],
+    ['drone','Drone Dock','🚁',[['Mini Drone','🛸'],['Camera Drone','📷'],['Delivery Drone','📦']]]
+  ],
+  retail:[
+    ['sneaker','Sneaker Summit','👟',[['Classic Kicks','👟'],['Hoodie Combo','🧥'],['Limited Drop','🔥']]],
+    ['thread','Thread & Co','👕',[['Graphic Tee','👕'],['Denim Jeans','👖'],['Designer Dress','👗']]],
+    ['cart','Click Cart Hub','📦',[['Mystery Box','🎁'],['Next-Day Bundle','🚚'],['Mega Haul','🛒']]],
+    ['toy','Toy Tower','🧸',[['Plush Bear','🧸'],['Robot Kit','🤖'],['Train Set','🚂']]],
+    ['bloom','Bloom Florist','💐',[['Single Rose','🌹'],['Bouquet','💐'],['Wedding Arch','💒']]],
+    ['vinyl','Vinyl Vault','💿',[['Used LP','💿'],['Retro Radio','📻'],['Signed Record','✍️']]]
+  ],
+  edu:[
+    ['codecamp','Code Camp Loft','⌨️',[['Intro Class','📘'],['Bootcamp','🏕️'],['Certification','📜']]],
+    ['lingo','Lingo Lounge','🗣️',[['Phrasebook','📕'],['Tutor Hour','💬'],['Immersion Trip','✈️']]],
+    ['tutor','Brainy Tutors','🧠',[['Homework Help','✏️'],['SAT Prep','📝'],['College Coach','🎓']]],
+    ['art','Art Atelier','🎨',[['Sketch Class','🖍️'],['Paint Night','🖌️'],['Masterclass','🖼️']]],
+    ['melody','Melody Music School','🎹',[['Guitar Lesson','🎸'],['Piano Course','🎹'],['Band Camp','🥁']]],
+    ['flight','Sky Flight School','✈️',[['Simulator Hour','🕹️'],['Ground School','📚'],['Pilot License','🛩️']]]
+  ],
+  fin:[
+    ['bank','Golden Bank','🏦',[['Savings Account','🐷'],['Gold Card','💳'],['Home Loan','🏠']]],
+    ['tax','Tax Tower','🧾',[['Tax Return','🧾'],['Audit Shield','🛡️'],['Business Filing','📁']]],
+    ['law','Lex Law Firm','⚖️',[['Contract Review','📄'],['Will & Trust','📜'],['Court Case','⚖️']]],
+    ['broker','Bull Market Brokers','📈',[['Index Fund','📊'],['Stock Pick','📈'],['Portfolio Plan','💼']]],
+    ['insure','Insure-All','🛡️',[['Pet Insurance','🐶'],['Car Insurance','🚗'],['Life Policy','❤️']]],
+    ['pitch','Pitch Perfect Marketing','📣',[['Logo Design','✒️'],['Ad Campaign','📺'],['Brand Launch','🚀']]]
+  ],
+  constr:[
+    ['hammer','Hammer Time Hardware','🔨',[['Tool Kit','🧰'],['Power Drill','🪛'],['Workbench','🪚']]],
+    ['pipe','Pipe Dreams Plumbing','🚰',[['Leak Fix','💧'],['Water Heater','🔥'],['Bath Remodel','🛁']]],
+    ['volt','Volt Electric','⚡',[['Outlet Install','🔌'],['Smart Lighting','💡'],['Solar Panels','☀️']]],
+    ['brick','Brick & Beam Builders','🧱',[['Patio','🧱'],['Deck Build','🪵'],['Home Addition','🏡']]],
+    ['paint','Paint Pros','🖌️',[['Accent Wall','🎨'],['Full Room','🖌️'],['Mural','🖼️']]],
+    ['wood','Woodcraft Workshop','🪵',[['Bookshelf','📚'],['Dining Table','🍽️'],['Custom Cabinets','🗄️']]]
+  ]
+};
+const BIZ = {}; const BIZ_LIST = [];
+for (const cat in BIZ_DEF) BIZ_DEF[cat].forEach(([id,name,emoji,prods])=>{
+  const b = {id,cat,name,emoji,products:prods.map(([n,e])=>({name:n,emoji:e}))};
+  BIZ[id]=b; BIZ_LIST.push(b);
+});
+const LIVING = {
+  apartments:{name:'Apartments', emoji:'🏢', cap:4, w:30, lv:[40,30,18,9,3], c:'#8fa8c8', d:'#5d7699', note:'4 rooms · everyday residents'},
+  motel:     {name:'Motel',      emoji:'🛏️', cap:3, w:25, lv:[60,30,8,2,0],  c:'#c9a27a', d:'#946d45', note:'3 rooms · mostly beginners'},
+  hotel:     {name:'Hotel',      emoji:'🏨', cap:5, w:22, lv:[35,30,20,10,5], c:'#9c8fd6', d:'#6a5db0', note:'5 rooms · mixed skill'},
+  resort:    {name:'Resort',     emoji:'🏝️', cap:6, w:12, lv:[12,28,32,18,10],c:'#5cc8d6', d:'#2b95a3', note:'6 rooms · skilled residents'},
+  villa:     {name:'Villa',      emoji:'🏡', cap:3, w:11, lv:[0,0,45,35,20], c:'#e2b54f', d:'#a9801f', note:'3 rooms · experts only (★3–★5)'}
+};
+const PROD = [{t:20,c:30,q:10,r:2.5},{t:60,c:90,q:15,r:2.8},{t:150,c:240,q:20,r:3.2}];
+const BONUS = [0,.10,.15,.25,.35,.50];
+const VIPS = {
+  builder:  {name:'Builder Boss',  emoji:'👷', desc:'Finishes a floor’s construction instantly'},
+  spender:  {name:'Big Spender',   emoji:'🤑', desc:'Buys out a whole floor'},
+  collector:{name:'Collector',     emoji:'🛍️', desc:'Buys out a single product'},
+  speedy:   {name:'Speedy Stocker',emoji:'⚡', desc:'Finishes all stocking on a floor'},
+  tycoon:   {name:'Supply Tycoon', emoji:'📦', desc:'Completely stocks a whole floor for free'}
+};
+const NAMES = ['Maya','Leo','Aiko','Omar','Zoe','Kai','Priya','Diego','Luna','Finn','Amara','Hugo','Mei','Jamal','Sofia','Theo','Nia','Ravi','Ivy','Mateo','Chloe','Arjun','Hana','Eli','Rosa','Kenji','Lila','Noah','Yara','Sam','Bea','Tariq','Gwen','Malik','Ines','Otto','Kiko','Remy','Sana','Jude','Anna','Marco','Tess','Felix'];
+const PEOPLE = ['👩','👨','🧑','👱‍♀️','👱‍♂️','👩‍🦰','👨‍🦰','👩‍🦱','👨‍🦱','👵','👴','🧔','👩‍🦳','👨‍🦳','🧕','👲'];
+const ELEV_COST = [0,0,1500,6000,25000,100000];
+
+// ---------- HELPERS ----------
+const $ = s=>document.querySelector(s);
+const rnd = (a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick = a=>a[Math.floor(Math.random()*a.length)];
+function wIndex(ws){const t=ws.reduce((a,b)=>a+b,0);let r=Math.random()*t;for(let i=0;i<ws.length;i++){r-=ws[i];if(r<0)return i;}return ws.length-1;}
+function fmt(n){n=Math.floor(n);if(n<10000)return n.toLocaleString();if(n<1e6)return(n/1e3).toFixed(n<1e5?1:0)+'K';if(n<1e9)return(n/1e6).toFixed(2)+'M';return(n/1e9).toFixed(2)+'B';}
+function fmtT(s){s=Math.max(0,Math.ceil(s));if(s<60)return s+'s';const m=Math.floor(s/60),r=s%60;if(m<60)return m+'m'+(r?' '+r+'s':'');return Math.floor(m/60)+'h '+(m%60)+'m';}
+const stars = n=>'<span class="stars">'+'★'.repeat(n)+'<span style="opacity:.25">'+'★'.repeat(5-n)+'</span></span>';
+const esc = s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+
+// ---------- STATE ----------
+let S;
+const rt = {busy:false, lastSec:0, sheet:null, resetArm:false};
+function newGame(){
+  S = {coins:1500, gems:5, floors:[], residents:[], queue:[], nid:1, elevLvl:1, lastMove:Date.now(), lastShop:Date.now(), lastSave:Date.now(), earned:0, intro:false};
+  S.floors.push({kind:'living', living:'apartments'});
+  for(let i=0;i<3;i++) S.residents.push(newResident(0,'apartments'));
+}
+function newResident(home, lt){
+  const L = LIVING[lt];
+  const built = S.floors.filter(f=>f.kind==='business').map(f=>f.biz);
+  const dream = (built.length && Math.random()<0.55) ? pick(built) : pick(BIZ_LIST).id;
+  return {id:S.nid++, name:pick(NAMES)+' '+pick('ABCDEFGHJKLMNPRSTW'.split(''))+'.', em:pick(PEOPLE), dream, lvl:1+wIndex(L.lv), home, job:null};
+}
+const res = id=>S.residents.find(r=>r.id===id);
+const floorCost = ()=>Math.round(300*Math.pow(1.5,S.floors.length)/10)*10;
+const buildTime = ()=>Math.min(240, 20+8*S.floors.length);
+const mult = fi=>1+0.3*fi; // fi = floor index (floor number - 1)
+function prodInfo(fi, i){
+  const p=PROD[i], m=mult(fi);
+  return {t:p.t, cost:Math.round(p.c*m), q:p.q, price:Math.max(1,Math.round(p.c*m*p.r/p.q))};
+}
+function empBonus(f, si){
+  const sl=f.slots[si]; if(!sl||sl.emp==null) return 0;
+  const r=res(sl.emp); return (r && r.dream===f.biz) ? BONUS[r.lvl] : 0;
+}
+function stockCost(fi,si){const f=S.floors[fi];return Math.round(prodInfo(fi,si).cost*(1-empBonus(f,si)));}
+function stockTime(fi,si){const f=S.floors[fi];return Math.max(3,Math.round(prodInfo(fi,si).t*(1-empBonus(f,si))));}
+function capacity(){return S.floors.reduce((a,f)=>a+(f.kind==='living'?LIVING[f.living].cap:0),0);}
+function addCoins(n){S.coins+=n; if(n>0) S.earned+=n;}
+
+// ---------- CORE ACTIONS ----------
+function buildFloor(target){
+  const cost=floorCost();
+  if(S.coins<cost){toast('Not enough coins 🪙');return;}
+  S.coins-=cost;
+  const t=buildTime();
+  S.floors.push({kind:'construct', target, endsAt:Date.now()+t*1000, dur:t});
+  closeSheet(); render();
+  setTimeout(()=>scrollToFloor(S.floors.length),60);
+  toast('🚧 Construction started on floor '+S.floors.length);
+}
+function completeConstruction(f, quiet){
+  const fi=S.floors.indexOf(f);
+  if(f.target==='living'){
+    const keys=Object.keys(LIVING); const lt=keys[wIndex(keys.map(k=>LIVING[k].w))];
+    Object.assign(f,{kind:'living', living:lt}); delete f.target; delete f.endsAt; delete f.dur;
+    S.residents.push(newResident(fi, lt));
+    S.gems+=1;
+    if(!quiet) showReveal(fi);
+  } else {
+    const cat=f.target;
+    const used=new Set(S.floors.filter(x=>x.kind==='business').map(x=>x.biz));
+    let pool=BIZ_DEF[cat].map(d=>d[0]).filter(id=>!used.has(id));
+    if(!pool.length) pool=BIZ_DEF[cat].map(d=>d[0]);
+    const id=pick(pool);
+    Object.assign(f,{kind:'business', biz:id, cat, staffed:false, slots:[0,1,2].map(()=>({emp:null,state:'empty',qty:0,endsAt:0,dur:0,readyAt:0}))});
+    delete f.target; delete f.endsAt; delete f.dur;
+    S.gems+=1;
+    if(!quiet) showReveal(fi);
+  }
+}
+function hire(fi,si,rid){
+  const f=S.floors[fi], r=res(rid); if(!f||!r) return;
+  if(r.job) fireRes(r,true);
+  if(f.slots[si].emp!=null){const old=res(f.slots[si].emp); if(old) old.job=null;}
+  f.slots[si].emp=rid; r.job={f:fi,s:si};
+  if(r.dream===f.biz) toast('😍 '+r.name+' got their DREAM JOB! −'+Math.round(BONUS[r.lvl]*100)+'% stocking cost & time');
+  else toast('🤝 Hired '+r.name);
+  if(!f.staffed && f.slots.every(s=>s.emp!=null)){f.staffed=true;S.gems+=1;toast('🎉 '+BIZ[f.biz].name+' fully staffed! +💎1');}
+}
+function fireRes(r,quiet){
+  if(!r.job) return; const f=S.floors[r.job.f];
+  if(f&&f.slots&&f.slots[r.job.s]&&f.slots[r.job.s].emp===r.id) f.slots[r.job.s].emp=null;
+  r.job=null; if(!quiet) toast('👋 '+r.name+' is looking for work');
+}
+function stock(fi,si){
+  const f=S.floors[fi], sl=f.slots[si];
+  if(sl.emp==null||sl.state!=='empty') return;
+  const c=stockCost(fi,si);
+  if(S.coins<c){toast('Not enough coins to stock 🪙'+fmt(c));return;}
+  S.coins-=c; const t=stockTime(fi,si);
+  sl.state='stocking'; sl.endsAt=Date.now()+t*1000; sl.dur=t;
+}
+function finishStock(f,si,at,quiet){
+  const fi=S.floors.indexOf(f), sl=f.slots[si];
+  sl.state='stocked'; sl.qty=prodInfo(fi,si).q; sl.readyAt=at;
+  if(!quiet) toast('✅ '+BIZ[f.biz].products[si].emoji+' '+BIZ[f.biz].products[si].name+' stocked at '+BIZ[f.biz].name);
+}
+function sellUnits(f,si,n){
+  const fi=S.floors.indexOf(f), sl=f.slots[si];
+  if(sl.state!=='stocked') return {n:0,coins:0};
+  const k=Math.min(n,sl.qty); const c=k*prodInfo(fi,si).price;
+  sl.qty-=k; addCoins(c);
+  if(sl.qty<=0){sl.qty=0; sl.state='empty'; rt.dirty=true;}
+  return {n:k,coins:c};
+}
+const rushGems = sec=>Math.max(1,Math.ceil(sec/60));
+function tryMoveIn(quiet){
+  const opts=[]; S.floors.forEach((f,i)=>{ if(f.kind==='living'){const n=S.residents.filter(r=>r.home===i).length; if(n<LIVING[f.living].cap) opts.push(i);} });
+  if(!opts.length) return false;
+  const fi=pick(opts), r=newResident(fi,S.floors[fi].living); S.residents.push(r);
+  if(!quiet) toast('🧳 '+r.name+' moved into the '+LIVING[S.floors[fi].living].name+' · dreams of '+BIZ[r.dream].emoji+' '+BIZ[r.dream].name+' ★'+r.lvl);
+  return true;
+}
+
+// ---------- SHOPPERS / VIP ----------
+function vipEligible(type,f,fi){
+  if(!f) return false;
+  switch(type){
+    case 'builder': return f.kind==='construct';
+    case 'spender': case 'collector': return f.kind==='business'&&f.slots.some(s=>s.state==='stocked'&&s.qty>0);
+    case 'speedy': return f.kind==='business'&&f.slots.some(s=>s.state==='stocking');
+    case 'tycoon': return f.kind==='business'&&f.slots.some((s,i)=>s.emp!=null&&!(s.state==='stocked'&&s.qty>=prodInfo(fi,i).q));
+  }
+  return false;
+}
+function spawnShopper(){
+  if(S.queue.length>=6) return;
+  if(Math.random()<0.1){
+    const types=Object.keys(VIPS).filter(t=>S.floors.some((f,i)=>vipEligible(t,f,i)));
+    if(types.length && !S.queue.some(q=>q.vip)){ const t=pick(types); S.queue.push({id:S.nid++, vip:t, em:VIPS[t].emoji}); return; }
+  }
+  const stockedF=[]; S.floors.forEach((f,i)=>{if(f.kind==='business'&&f.slots.some(s=>s.state==='stocked'))stockedF.push(i);});
+  let dest;
+  if(stockedF.length && Math.random()<0.85) dest=pick(stockedF)+1;
+  else { const ok=[]; S.floors.forEach((f,i)=>{if(f.kind!=='construct')ok.push(i);}); dest=(ok.length?pick(ok):0)+1; }
+  S.queue.push({id:S.nid++, em:pick(PEOPLE), dest});
+}
+function ride(){
+  if(rt.busy||!S.queue.length) return;
+  const sh=S.queue[0];
+  if(sh.vip){openVip(sh.id);return;}
+  S.queue.shift();
+  goElevator(sh.dest, sh.em, ()=>arriveShopper(sh));
+}
+function perFloor(){return 0.34/(1+0.5*(S.elevLvl-1));}
+const carBottom = n=>n*H+(H-50)/2;
+function goElevator(dest, em, onArrive){
+  rt.busy=true; const car=$('#car');
+  const dur=Math.max(0.6,dest*perFloor());
+  car.textContent=em; car.style.transition='bottom '+dur+'s ease-in-out'; car.style.bottom=carBottom(dest)+'px';
+  scrollToFloor(dest);
+  renderQueue();
+  setTimeout(()=>{
+    try{onArrive();}catch(e){console.error(e);}
+    car.textContent=''; const back=Math.max(0.4,dur*0.5);
+    car.style.transition='bottom '+back+'s ease-in-out'; car.style.bottom=carBottom(0)+'px';
+    setTimeout(()=>{rt.busy=false; renderQueue();}, back*1000+60);
+    render();
+  }, dur*1000+120);
+}
+function arriveShopper(sh){
+  const fi=sh.dest-1, f=S.floors[fi]; let txt='', total=0;
+  if(f&&f.kind==='business'){
+    const st=f.slots.map((s,i)=>i).filter(i=>f.slots[i].state==='stocked');
+    if(st.length){const si=pick(st); const r=sellUnits(f,si,rnd(2,4)); total+=r.coins; txt=BIZ[f.biz].products[si].emoji+' ';}
+  }
+  const tip=Math.round((3+Math.random()*4)*mult(Math.max(0,fi))); addCoins(tip); total+=tip;
+  floatText(sh.dest, txt+'+🪙'+fmt(total));
+  if(Math.random()<0.05){S.gems++; setTimeout(()=>floatText(sh.dest,'+💎1 tip!'),400);}
+}
+function applyVip(v, fi){
+  const f=S.floors[fi], now=Date.now(), name=VIPS[v.vip].name;
+  if(!vipEligible(v.vip,f,fi)){floatText(fi+1,'VIP left 😕'); return;}
+  if(v.vip==='builder'){f.endsAt=now; floatText(fi+1,'👷 Construction done!');}
+  else if(v.vip==='spender'){let c=0; f.slots.forEach((s,i)=>{c+=sellUnits(f,i,s.qty).coins;}); floatText(fi+1,'🤑 Bought it all! +🪙'+fmt(c));}
+  else if(v.vip==='collector'){let best=-1,bv=-1; f.slots.forEach((s,i)=>{if(s.state==='stocked'){const val=s.qty*prodInfo(fi,i).price; if(val>bv){bv=val;best=i;}}}); const c=sellUnits(f,best,9999).coins; floatText(fi+1,'🛍️ Bought every '+BIZ[f.biz].products[best].name+'! +🪙'+fmt(c));}
+  else if(v.vip==='speedy'){f.slots.forEach(s=>{if(s.state==='stocking')s.endsAt=now;}); floatText(fi+1,'⚡ Stocking finished!');}
+  else if(v.vip==='tycoon'){f.slots.forEach((s,i)=>{if(s.emp!=null){s.state='stocked'; s.qty=prodInfo(fi,i).q; s.readyAt=now;}}); floatText(fi+1,'📦 Floor fully stocked!');}
+  toast('⭐ VIP '+name+' visited floor '+(fi+1));
+}
+
+// ---------- RENDER ----------
+function render(){
+  rt.dirty=false;
+  const sc=$('#scroller'); const fromBottom=sc.scrollHeight-sc.scrollTop;
+  const n=S.floors.length; let h='';
+  h+='<div class="roof"><div class="crane">🏗️</div><button class="buildbtn" data-a="build">＋ Build Floor '+(n+1)+'<small>🪙 '+fmt(floorCost())+' · '+fmtT(buildTime())+' to build</small></button></div>';
+  for(let i=n-1;i>=0;i--) h+=floorHTML(S.floors[i],i);
+  h+='<div class="floor lobby" id="fl-0"><div class="fcard"><div class="fhead"><span class="fnum">L</span><span class="fname">🛎️ Sky City Lobby</span><span class="fchip">'+S.queue.length+' waiting</span></div><div class="lobbyfloor">🚪'+S.queue.slice(0,6).map(q=>q.em).join('')+'<span style="margin-left:auto">🪴</span></div></div></div>';
+  h+='<div class="ground"></div>';
+  // clouds
+  const cl=[]; for(let i=2;i<n+2;i+=3){cl.push('<div class="cloud" style="bottom:'+(i*H+20)+'px;'+(i%2?'right:-20px':'left:-30px')+'">☁️</div>');}
+  $('#floors').innerHTML=cl.join('')+h;
+  const sh=$('#shaft'); sh.style.height=((n+1)*H)+'px';
+  if(!rt.busy){const car=$('#car'); car.style.transition='none'; car.style.bottom=carBottom(0)+'px';}
+  sc.scrollTop=sc.scrollHeight-fromBottom;
+  renderQueue(); updateHUD();
+}
+function floorHTML(f,i){
+  const num=i+1;
+  if(f.kind==='construct'){
+    const label=f.target==='living'?'🏠 Living Space':CATS[f.target].emoji+' '+CATS[f.target].name;
+    const rem=(f.endsAt-Date.now())/1000, pct=Math.min(100,100*(1-rem/f.dur));
+    return '<div class="floor construct" id="fl-'+num+'"><div class="fcard"><div class="fhead"><span class="fnum">'+num+'</span><span class="fname">Under Construction</span></div>'+
+      '<div class="cbox"><div class="crow"><span>🚧 '+label+'</span></div><div class="bar"><i id="cb-'+i+'" style="width:'+pct+'%"></i></div>'+
+      '<div class="crow"><span id="ct-'+i+'">'+fmtT(rem)+' left</span><button class="mini" data-a="rushc" data-f="'+i+'">⚡ Rush 💎<span id="cg-'+i+'">'+rushGems(rem)+'</span></button></div></div></div></div>';
+  }
+  if(f.kind==='living'){
+    const L=LIVING[f.living]; const rs=S.residents.filter(r=>r.home===i);
+    let rooms=''; for(let k=0;k<L.cap;k++){const r=rs[k]; rooms+= r?'<div class="room">'+r.em+(r.job?'<span class="wk">💼</span>':'')+'</div>':'<div class="room empty">🛏️</div>';}
+    return '<div class="floor" id="fl-'+num+'" style="--c:'+L.c+';--d:'+L.d+'"><div class="fcard"><button class="fhead" data-a="floor" data-f="'+i+'"><span class="fnum">'+num+'</span><span class="fname">'+L.emoji+' '+L.name+'</span><span class="fchip">'+rs.length+'/'+L.cap+' ›</span></button>'+
+      '<div class="rooms" data-a="floor" data-f="'+i+'" style="grid-template-columns:repeat('+L.cap+',1fr)">'+rooms+'</div></div></div>';
+  }
+  const b=BIZ[f.biz], c=CATS[f.cat];
+  const staff=f.slots.filter(s=>s.emp!=null).length;
+  let slots='';
+  f.slots.forEach((sl,si)=>{
+    const p=b.products[si]; const r=sl.emp!=null?res(sl.emp):null;
+    const dream=r&&r.dream===f.biz;
+    let st;
+    if(!r) st='<div class="st hire">＋ Hire</div>';
+    else if(sl.state==='empty'){const cost=stockCost(i,si); st='<div class="st '+(S.coins>=cost?'stock':'poor')+'">Stock 🪙'+fmt(cost)+'</div>';}
+    else if(sl.state==='stocking'){const rem=(sl.endsAt-Date.now())/1000, pct=Math.min(100,100*(1-rem/sl.dur)); st='<div class="stx"><span>📦</span><span id="t-'+i+'-'+si+'">'+fmtT(rem)+'</span></div><div class="bar"><i id="b-'+i+'-'+si+'" style="width:'+pct+'%"></i></div>';}
+    else {const q=prodInfo(i,si).q; st='<div class="stx"><span>In stock</span><span id="q-'+i+'-'+si+'">'+sl.qty+'</span></div><div class="bar q"><i id="qb-'+i+'-'+si+'" style="width:'+(100*sl.qty/q)+'%"></i></div>';}
+    slots+='<button class="slot'+(r?'':' nohire')+'" data-a="slot" data-f="'+i+'" data-s="'+si+'"><span class="emp">'+(r?r.em:'')+'</span>'+(dream?'<span class="lv">★'+r.lvl+'</span>':'')+
+      '<span class="pe">'+p.emoji+'</span><span class="pn">'+esc(p.name)+'</span>'+st+'</button>';
+  });
+  return '<div class="floor" id="fl-'+num+'" style="--c:'+c.c+';--d:'+c.d+'"><div class="fcard"><button class="fhead" data-a="floor" data-f="'+i+'"><span class="fnum">'+num+'</span><span class="fname">'+b.emoji+' '+esc(b.name)+'</span><span class="fchip">👥'+staff+'/3 ›</span></button><div class="slots">'+slots+'</div></div></div>';
+}
+function updateDynamic(){
+  const now=Date.now();
+  S.floors.forEach((f,i)=>{
+    if(f.kind==='construct'){
+      const rem=(f.endsAt-now)/1000; const b=document.getElementById('cb-'+i); if(b) b.style.width=Math.min(100,100*(1-rem/f.dur))+'%';
+      const t=document.getElementById('ct-'+i); if(t) t.textContent=fmtT(rem)+' left';
+      const g=document.getElementById('cg-'+i); if(g) g.textContent=rushGems(rem);
+    } else if(f.kind==='business'){
+      f.slots.forEach((sl,si)=>{
+        if(sl.state==='stocking'){const rem=(sl.endsAt-now)/1000; const b=document.getElementById('b-'+i+'-'+si); if(b)b.style.width=Math.min(100,100*(1-rem/sl.dur))+'%'; const t=document.getElementById('t-'+i+'-'+si); if(t)t.textContent=fmtT(rem);}
+        else if(sl.state==='stocked'){const q=document.getElementById('q-'+i+'-'+si); if(q)q.textContent=sl.qty; const qb=document.getElementById('qb-'+i+'-'+si); if(qb)qb.style.width=(100*sl.qty/prodInfo(i,si).q)+'%';}
+      });
+    }
+  });
+  updateHUD();
+}
+function updateHUD(){
+  $('#hc').textContent='🪙 '+fmt(S.coins);
+  $('#hg').textContent='💎 '+S.gems;
+  $('#hp').textContent='👥 '+S.residents.length+'/'+capacity();
+}
+function renderQueue(){
+  const q=$('#queue');
+  if(!S.queue.length) q.innerHTML='<span class="qempty">Waiting for shoppers…</span>';
+  else q.innerHTML=S.queue.map(s=>s.vip
+    ? '<button class="shopper vip" data-a="vip" data-id="'+s.id+'">'+s.em+'<span class="dn">VIP</span></button>'
+    : '<button class="shopper" data-a="ride">'+s.em+'<span class="dn">'+s.dest+'</span></button>').join('');
+  const b=$('#rideBtn'); const front=S.queue[0];
+  b.disabled=rt.busy||!front;
+  b.classList.toggle('vipride',!!(front&&front.vip));
+  b.innerHTML=rt.busy?'⏳<small>riding…</small>':!front?'▲ RIDE<small>no one</small>':front.vip?'⭐ VIP<small>pick floor</small>':'▲ RIDE<small>to floor '+front.dest+'</small>';
+}
+function floatText(floorNum, txt){
+  const el=document.createElement('div'); el.className='float'; el.textContent=txt;
+  el.style.bottom=(GROUND+floorNum*H+H/2)+'px';
+  $('#fx').appendChild(el); setTimeout(()=>el.remove(),1700);
+}
+function scrollToFloor(num){
+  const el=document.getElementById('fl-'+num); if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function toast(msg){
+  const t=$('#toasts'); const el=document.createElement('div'); el.className='toast'; el.textContent=msg; t.appendChild(el);
+  while(t.children.length>3) t.firstChild.remove();
+  setTimeout(()=>{el.classList.add('out'); setTimeout(()=>el.remove(),400);},2800);
+}
+
+// ---------- SHEETS ----------
+function openSheet(html,key){rt.sheet=key||'x'; $('#sheetBody').innerHTML='<button class="x" data-a="close">✕</button>'+html; $('#sheet').classList.remove('hidden'); $('#sheetBody').scrollTop=0;}
+function closeSheet(){rt.sheet=null; rt.resetArm=false; $('#sheet').classList.add('hidden');}
+function refreshSheet(){ if(!rt.sheet) return; const top=$('#sheetBody').scrollTop; _refresh(); $('#sheetBody').scrollTop=top; }
+function _refresh(){ const k=rt.sheet; if(k.startsWith('floor:')) openFloor(+k.slice(6)); else if(k.startsWith('hire:')){const [,f,s]=k.split(':'); openHire(+f,+s);} else if(k==='residents') openResidents(); else if(k==='menu') openMenu(); else if(k==='build') openBuild(); }
+
+function openBuild(){
+  const cost=floorCost(), ok=S.coins>=cost;
+  let h='<h2>🏗️ Build Floor '+(S.floors.length+1)+'</h2><div class="sub">Cost 🪙'+fmt(cost)+' · takes '+fmtT(buildTime())+' · each floor costs more than the last</div>';
+  h+='<div class="grid3">';
+  for(const k in CATS){const c=CATS[k]; h+='<button class="catbtn" style="background:'+c.c+'" data-a="buildcat" data-c="'+k+'" '+(ok?'':'disabled')+'><b>'+c.emoji+'</b>'+c.name+'</button>';}
+  h+='<button class="catbtn" style="background:#8fa8c8" data-a="buildcat" data-c="living" '+(ok?'':'disabled')+'><b>🏠</b>Living Space</button></div>';
+  if(!ok) h+='<p class="center small" style="margin-top:12px">You need 🪙'+fmt(cost-S.coins)+' more. Stock products and ride the elevator to earn!</p>';
+  else h+='<p class="center small" style="margin-top:12px">Pick a category — the exact business (or living space type) is revealed when construction finishes!</p>';
+  openSheet(h,'build');
+}
+function showReveal(fi){
+  const f=S.floors[fi];
+  if(rt.sheet){ toast('🎉 Floor '+(fi+1)+' is open: '+(f.kind==='living'?LIVING[f.living].name:BIZ[f.biz].name)+'! +💎1'); return; }
+  let h;
+  if(f.kind==='living'){
+    const L=LIVING[f.living];
+    h='<div class="hero">'+L.emoji+'</div><h2 class="center">'+L.name+' opened!</h2><div class="sub center">Floor '+(fi+1)+' · '+L.note+' · +💎1</div><p class="center small">New residents will move in over time. Each one has a dream job — hire them there for big bonuses.</p><button class="btn wide" data-a="close">Great!</button>';
+  } else {
+    const b=BIZ[f.biz], dreamers=S.residents.filter(r=>r.dream===b.id).length;
+    h='<div class="hero">'+b.emoji+'</div><h2 class="center">'+esc(b.name)+' opened!</h2><div class="sub center">Floor '+(fi+1)+' · '+CATS[b.cat].name+' · +💎1</div>';
+    b.products.forEach((p,i)=>{const pi=prodInfo(fi,i); h+='<div class="row"><span class="big">'+p.emoji+'</span><div class="grow"><b>'+esc(p.name)+'</b><div class="small">Stock '+pi.q+' for 🪙'+fmt(pi.cost)+' · sells 🪙'+pi.price+' each</div></div></div>';});
+    h+='<p class="center small">'+(dreamers?'✨ '+dreamers+' resident'+(dreamers>1?'s dream':' dreams')+' of working here!':'No residents dream of working here yet — they may move in soon.')+'</p>';
+    h+='<button class="btn wide green" data-a="floor" data-f="'+fi+'">Hire staff</button>';
+  }
+  openSheet(h,'reveal');
+}
+function resLine(r){
+  const d=BIZ[r.dream];
+  return '💭 Dream: '+d.emoji+' '+esc(d.name)+' '+stars(r.lvl);
+}
+function openFloor(fi){
+  const f=S.floors[fi]; if(!f) return;
+  let h;
+  if(f.kind==='construct'){ const rem=(f.endsAt-Date.now())/1000; h='<h2>🚧 Floor '+(fi+1)+'</h2><div class="sub">Under construction · '+fmtT(rem)+' left</div><button class="btn wide gold" data-a="rushc" data-f="'+fi+'">⚡ Finish now for 💎'+rushGems(rem)+'</button>'; openSheet(h,'c'); return; }
+  if(f.kind==='living'){
+    const L=LIVING[f.living], rs=S.residents.filter(r=>r.home===fi);
+    h='<h2>'+L.emoji+' '+L.name+'</h2><div class="sub">Floor '+(fi+1)+' · '+rs.length+'/'+L.cap+' residents · '+L.note+'</div>';
+    if(!rs.length) h+='<p class="small center">No one has moved in yet.</p>';
+    rs.forEach(r=>{const job=r.job?BIZ[S.floors[r.job.f].biz]:null; h+='<div class="row'+(job&&job.id===r.dream?' dream':'')+'"><span class="big">'+r.em+'</span><div class="grow"><b>'+esc(r.name)+'</b><div class="small">'+resLine(r)+'<br>'+(job?'💼 Works at '+job.emoji+' '+esc(job.name)+(job.id===r.dream?' <span class="tag">DREAM JOB</span>':''):'🔎 Looking for work')+'</div></div>'+dreamBtn(r)+'</div>';});
+    openSheet(h,'floor:'+fi); return;
+  }
+  const b=BIZ[f.biz];
+  h='<h2>'+b.emoji+' '+esc(b.name)+'</h2><div class="sub">Floor '+(fi+1)+' · '+CATS[b.cat].name+'</div>';
+  b.products.forEach((p,si)=>{
+    const sl=f.slots[si], pi=prodInfo(fi,si), r=sl.emp!=null?res(sl.emp):null, bon=empBonus(f,si);
+    let state=sl.state==='stocked'?sl.qty+' in stock':sl.state==='stocking'?'Stocking… '+fmtT((sl.endsAt-Date.now())/1000):'Empty';
+    h+='<div class="row"><span class="big">'+p.emoji+'</span><div class="grow"><b>'+esc(p.name)+'</b><div class="small">Sells 🪙'+pi.price+' each · stock '+pi.q+' for 🪙'+fmt(stockCost(fi,si))+(bon?' <s>'+fmt(pi.cost)+'</s>':'')+' · '+fmtT(stockTime(fi,si))+'<br>📦 '+state+'</div>';
+    if(r) h+='<div class="small" style="margin-top:4px">'+r.em+' <b style="display:inline">'+esc(r.name)+'</b>'+(bon?' <span class="tag">DREAM ★'+r.lvl+' −'+Math.round(bon*100)+'%</span>':'')+'<br>'+resLine(r)+'</div>';
+    h+='</div><div style="display:flex;flex-direction:column;gap:6px">';
+    if(r){ if(sl.state==='empty') h+='<button class="btn green" data-a="stock" data-f="'+fi+'" data-s="'+si+'" '+(S.coins>=stockCost(fi,si)?'':'disabled')+'>Stock</button>';
+      if(sl.state==='stocking') h+='<button class="btn gold" data-a="rushs" data-f="'+fi+'" data-s="'+si+'">💎'+rushGems((sl.endsAt-Date.now())/1000)+'</button>';
+      h+='<button class="btn ghost" data-a="hireopen" data-f="'+fi+'" data-s="'+si+'">Swap</button><button class="btn red" data-a="fire" data-r="'+r.id+'">Fire</button>'; }
+    else h+='<button class="btn" data-a="hireopen" data-f="'+fi+'" data-s="'+si+'">Hire</button>';
+    h+='</div></div>';
+  });
+  const canAll=f.slots.some((s,si)=>s.emp!=null&&s.state==='empty');
+  if(canAll) h+='<button class="btn wide green" data-a="stockall" data-f="'+fi+'">📦 Stock everything</button>';
+  openSheet(h,'floor:'+fi);
+}
+function openHire(fi,si){
+  const f=S.floors[fi], b=BIZ[f.biz], p=b.products[si];
+  const list=S.residents.filter(r=>!r.job).sort((a,c)=>((c.dream===f.biz)-(a.dream===f.biz))||(c.lvl-a.lvl));
+  let h='<h2>Hire for '+p.emoji+' '+esc(p.name)+'</h2><div class="sub">'+b.emoji+' '+esc(b.name)+' · Dream-job workers stock cheaper & faster</div>';
+  if(!list.length) h+='<div class="center"><div class="hero">🏚️</div><p class="small">No one is looking for work. Build a <b>Living Space</b> floor so more residents can move in, or wait for vacancies to fill.</p><button class="btn wide" data-a="build">🏗️ Build a floor</button></div>';
+  list.forEach(r=>{const dream=r.dream===f.biz; h+='<div class="row'+(dream?' dream':'')+'"><span class="big">'+r.em+'</span><div class="grow"><b>'+esc(r.name)+(dream?'<span class="tag">DREAM JOB −'+Math.round(BONUS[r.lvl]*100)+'%</span>':'')+'</b><div class="small">'+resLine(r)+'</div></div><button class="btn '+(dream?'gold':'')+'" data-a="hire" data-f="'+fi+'" data-s="'+si+'" data-r="'+r.id+'">Hire</button></div>';});
+  openSheet(h,'hire:'+fi+':'+si);
+}
+function dreamSlot(r){
+  for(let i=0;i<S.floors.length;i++){const f=S.floors[i]; if(f.kind==='business'&&f.biz===r.dream){ if(r.job&&r.job.f===i) return null; const s=f.slots.findIndex(x=>x.emp==null); if(s>=0) return {f:i,s}; }}
+  return null;
+}
+function dreamBtn(r){const d=dreamSlot(r); return d?'<button class="btn gold" data-a="hire" data-f="'+d.f+'" data-s="'+d.s+'" data-r="'+r.id+'">Dream job</button>':'';}
+function openResidents(){
+  let h='<h2>👥 Residents</h2><div class="sub">'+S.residents.length+' residents · '+S.residents.filter(r=>r.job).length+' employed · capacity '+capacity()+'</div>';
+  const sorted=[...S.residents].sort((a,b)=>(!!a.job)-(!!b.job)||b.lvl-a.lvl);
+  sorted.forEach(r=>{const job=r.job?BIZ[S.floors[r.job.f].biz]:null; const home=LIVING[S.floors[r.home].living];
+    h+='<div class="row'+(job&&job.id===r.dream?' dream':'')+'"><span class="big">'+r.em+'</span><div class="grow"><b>'+esc(r.name)+'</b><div class="small">'+resLine(r)+'<br>'+home.emoji+' Floor '+(r.home+1)+' · '+(job?'💼 '+job.emoji+' '+esc(job.name)+(job.id===r.dream?' <span class="tag">DREAM</span>':''):'🔎 Unemployed')+'</div></div>'+dreamBtn(r)+'</div>';});
+  openSheet(h,'residents');
+}
+function openVip(id){
+  const v=S.queue.find(q=>q.id===id); if(!v) return;
+  const V=VIPS[v.vip];
+  let h='<div class="hero">'+V.emoji+'</div><h2 class="center">VIP: '+V.name+'</h2><div class="sub center">'+V.desc+'. Choose a floor:</div>';
+  let any=false;
+  S.floors.forEach((f,i)=>{ if(!vipEligible(v.vip,f,i)) return; any=true;
+    const nm=f.kind==='construct'?'🚧 Under construction':BIZ[f.biz].emoji+' '+esc(BIZ[f.biz].name);
+    h+='<div class="row"><span class="big" style="font-size:18px;font-weight:700;width:30px;text-align:center">'+(i+1)+'</span><div class="grow"><b>'+nm+'</b></div><button class="btn pink" '+(rt.busy?'disabled':'')+' data-a="vipgo" data-id="'+id+'" data-f="'+i+'">Go ▲</button></div>'; });
+  if(!any) h+='<p class="center small">No floor needs this VIP right now. They can wait in the lobby.</p>';
+  if(rt.busy) h+='<p class="center small">The elevator is busy — try again in a moment.</p>';
+  h+='<button class="btn wide ghost" data-a="vipaway" data-id="'+id+'">Send VIP away</button>';
+  openSheet(h,'vip');
+}
+function openMenu(){
+  const lvl=S.elevLvl, next=ELEV_COST[lvl+1];
+  let h='<h2>☰ Sky City Tower</h2><div class="sub">'+S.floors.length+' floors · lifetime earnings 🪙'+fmt(S.earned)+'</div>';
+  h+='<div class="row"><span class="big">🛗</span><div class="grow"><b>Elevator · Level '+lvl+'/5</b><div class="small">'+(next?'Upgrade for faster rides':'Max speed!')+'</div></div>'+(next?'<button class="btn gold" data-a="elev" '+(S.coins>=next?'':'disabled')+'>🪙'+fmt(next)+'</button>':'')+'</div>';
+  h+='<div class="row"><span class="big">👥</span><div class="grow"><b>Residents & dream jobs</b><div class="small">'+S.residents.filter(r=>!r.job).length+' looking for work</div></div><button class="btn" data-a="residents">Open</button></div>';
+  h+='<div class="row"><span class="big">📖</span><div class="grow"><b>How to play</b></div><button class="btn" data-a="help">Open</button></div>';
+  h+='<div class="row"><span class="big">🧨</span><div class="grow"><b>Start over</b><div class="small">Erases your tower</div></div><button class="btn red" data-a="reset">'+(rt.resetArm?'Tap again!':'Reset')+'</button></div>';
+  openSheet(h,'menu');
+}
+function openHelp(){
+  openSheet('<div class="help"><h2>📖 How to play</h2>'+
+  '<p>🏗️ <b>Build floors</b> upward. Pick a business category (Food & Beverage, Tech, Retail…) or a <b>Living Space</b>. Every new floor costs more.</p>'+
+  '<p>🏠 <b>Living Spaces</b> — Apartments, Motel, Hotel, Resort or Villa — house residents. They are your future employees.</p>'+
+  '<p>🤝 <b>Hire</b> one employee per product (3 per business). A product can only be stocked once someone works it.</p>'+
+  '<p>📦 <b>Stock</b> a product, wait for it to finish, then it sells to shoppers.</p>'+
+  '<p>💭 Every resident has a <b>dream job</b> with a skill level ★1–★5. Working their dream job gives a stocking discount and speed boost: ★1 10%, ★2 15%, ★3 25%, ★4 35%, ★5 50%.</p>'+
+  '<p>🛗 Tap <b>RIDE</b> to take shoppers up the elevator. They buy products and tip you.</p>'+
+  '<p>⭐ <b>VIP shoppers</b> glow gold. Send them to any floor: 👷 finish construction, 🤑 buy out a floor, 🛍️ buy out a product, ⚡ finish stocking, 📦 fully stock a floor.</p>'+
+  '<p>💎 Gems come from new floors, fully staffed businesses and lucky tips. Use them to rush timers.</p>'+
+  '<button class="btn wide green" data-a="close">Let’s build!</button></div>','help');
+}
+
+// ---------- EVENTS ----------
+const A = {
+  close:()=>closeSheet(),
+  build:()=>openBuild(),
+  menu:()=>openMenu(),
+  help:()=>openHelp(),
+  residents:()=>openResidents(),
+  buildcat:d=>buildFloor(d.c),
+  ride:()=>ride(),
+  vip:d=>openVip(+d.id),
+  vipgo:d=>{ if(rt.busy) return; const idx=S.queue.findIndex(q=>q.id===+d.id); if(idx<0) return; const v=S.queue.splice(idx,1)[0]; closeSheet(); const fi=+d.f; goElevator(fi+1, v.em, ()=>applyVip(v,fi)); },
+  vipaway:d=>{ S.queue=S.queue.filter(q=>q.id!==+d.id); closeSheet(); renderQueue(); },
+  floor:d=>openFloor(+d.f),
+  slot:d=>{ const fi=+d.f, si=+d.s, f=S.floors[fi], sl=f.slots[si];
+    if(sl.emp==null) openHire(fi,si);
+    else if(sl.state==='empty'){ stock(fi,si); render(); }
+    else openFloor(fi); },
+  hireopen:d=>openHire(+d.f,+d.s),
+  hire:d=>{ hire(+d.f,+d.s,+d.r); const k=rt.sheet; render(); if(k==='residents'||(k&&k.startsWith('floor:')&&+k.slice(6)!==+d.f)) refreshSheet(); else openFloor(+d.f); },
+  fire:d=>{ fireRes(res(+d.r)); render(); refreshSheet(); },
+  stock:d=>{ stock(+d.f,+d.s); render(); refreshSheet(); },
+  stockall:d=>{ const fi=+d.f; S.floors[fi].slots.forEach((s,si)=>{ if(s.emp!=null&&s.state==='empty') stock(fi,si); }); render(); refreshSheet(); },
+  rushs:d=>{ const sl=S.floors[+d.f].slots[+d.s]; if(sl.state!=='stocking') return; const g=rushGems((sl.endsAt-Date.now())/1000); if(S.gems<g){toast('Not enough gems 💎');return;} S.gems-=g; sl.endsAt=Date.now(); tick(); refreshSheet(); },
+  rushc:d=>{ const f=S.floors[+d.f]; if(f.kind!=='construct') return; const g=rushGems((f.endsAt-Date.now())/1000); if(S.gems<g){toast('Not enough gems 💎');return;} S.gems-=g; f.endsAt=Date.now(); closeSheet(); tick(); },
+  elev:()=>{ const c=ELEV_COST[S.elevLvl+1]; if(!c||S.coins<c) return; S.coins-=c; S.elevLvl++; toast('🛗 Elevator upgraded to level '+S.elevLvl+'!'); updateHUD(); openMenu(); },
+  reset:()=>{ if(!rt.resetArm){rt.resetArm=true; openMenu(); return;} try{localStorage.removeItem(KEY);}catch(e){} newGame(); closeSheet(); render(); openHelp(); S.intro=true; }
+};
+document.addEventListener('click',e=>{ const el=e.target.closest('[data-a]'); if(!el||el.disabled) return; const fn=A[el.dataset.a]; if(fn) fn(el.dataset); });
+
+// ---------- LOOP ----------
+function tick(){
+  const now=Date.now(); let changed=false;
+  S.floors.forEach(f=>{
+    if(f.kind==='construct'&&now>=f.endsAt){completeConstruction(f); changed=true;}
+    if(f.kind==='business') f.slots.forEach((sl,si)=>{ if(sl.state==='stocking'&&now>=sl.endsAt){finishStock(f,si,now); changed=true;} });
+  });
+  if(now-rt.lastSec>=1000){
+    rt.lastSec=now;
+    S.floors.forEach(f=>{ if(f.kind==='business') f.slots.forEach((sl,si)=>{ if(sl.state==='stocked'&&Math.random()<1/8) sellUnits(f,si,1); }); });
+    if(now-S.lastShop>5000){S.lastShop=now; const before=S.queue.length; spawnShopper(); if(S.queue.length!==before){renderQueue(); const ch=document.querySelector('.lobby .fchip'); if(ch) ch.textContent=S.queue.length+' waiting';}}
+    if(now-S.lastMove>15000){S.lastMove=now; if(tryMoveIn()) changed=true;}
+  }
+  if(changed||rt.dirty){render(); if(rt.sheet&&rt.sheet!=='reveal'&&rt.sheet!=='vip'&&rt.sheet!=='help') refreshSheet();}
+  else updateDynamic();
+}
+function save(){ try{ S.lastSave=Date.now(); localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+function load(){ try{ const raw=localStorage.getItem(KEY); if(raw){ const s=JSON.parse(raw); if(s&&Array.isArray(s.floors)) return s; } }catch(e){} return null; }
+function catchUp(){
+  const now=Date.now(), last=S.lastSave||now, el=Math.min(now-last,3600e3);
+  if(el<15000) return;
+  let earned=0, sold=0;
+  S.floors.forEach(f=>{
+    if(f.kind==='construct'&&now>=f.endsAt) completeConstruction(f,true);
+    if(f.kind==='business') f.slots.forEach((sl,si)=>{
+      if(sl.state==='stocking'&&now>=sl.endsAt) finishStock(f,si,sl.endsAt,true);
+      if(sl.state==='stocked'){ const start=Math.max(sl.readyAt||last,last); const k=Math.floor(Math.min(now-start,3600e3)/8000); if(k>0){const r=sellUnits(f,si,k); earned+=r.coins; sold+=r.n;} }
+    });
+  });
+  let moved=0; for(let k=Math.floor(el/15000);k>0;k--){ if(tryMoveIn(true)) moved++; else break; }
+  for(let k=0;k<6;k++) spawnShopper();
+  S.lastMove=now; S.lastShop=now;
+  if(earned||moved) setTimeout(()=>openSheet('<div class="hero">👋</div><h2 class="center">Welcome back!</h2><div class="sub center">While you were away ('+fmtT(el/1000)+')</div>'+
+    (sold?'<div class="row"><span class="big">🪙</span><div class="grow"><b>+'+fmt(earned)+' coins</b><div class="small">'+sold+' items sold</div></div></div>':'')+
+    (moved?'<div class="row"><span class="big">🧳</span><div class="grow"><b>'+moved+' new resident'+(moved>1?'s':'')+'</b><div class="small">Ready to hire</div></div></div>':'')+
+    '<button class="btn wide green" data-a="close">Collect</button>','welcome'),200);
+}
+
+S = load();
+if(S){ S.queue=S.queue||[]; catchUp(); } else newGame();
+render();
+const sc=$('#scroller'); sc.scrollTop=sc.scrollHeight;
+if(!S.intro){S.intro=true; openHelp();}
+setInterval(tick,250);
+setInterval(save,5000);
+document.addEventListener('visibilitychange',()=>{ if(document.hidden) save(); });
+window.addEventListener('pagehide',save);
+window.__game={get S(){return S;},tick,render};
+})();
+</script>
+</body>
+</html>
