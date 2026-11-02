@@ -73,6 +73,8 @@ button{font-family:inherit;cursor:pointer;border:none}
 .shopper .dn{font-size:10px;font-weight:700;color:#fff;background:#4a6cf7;border-radius:6px;padding:0 4px;margin-top:2px}
 .shopper.vip{background:linear-gradient(#fff3a8,#ffcf3f);box-shadow:0 0 0 2px #fff,0 0 10px #ffd23f;animation:glow 1.2s ease-in-out infinite alternate}
 .shopper.vip .dn{background:#d63384}
+.shopper.mover{background:#e3f8e6;box-shadow:0 0 0 2px #2ebd6b}
+.shopper.mover .dn{background:#2ebd6b}
 @keyframes glow{to{box-shadow:0 0 0 2px #fff,0 0 18px #ffb000}}
 .qempty{color:#e8d5b5;font-size:13px}
 #rideBtn{flex:none;background:linear-gradient(#56d47f,#25a552);color:#fff;border-radius:14px;padding:10px 14px;font-weight:700;font-size:16px;box-shadow:0 4px 0 #1b7a3c;min-width:92px;line-height:1.1}
@@ -312,7 +314,6 @@ function completeConstruction(f, quiet){
   if(f.target==='living'){
     const keys=Object.keys(LIVING); const lt=keys[wIndex(keys.map(k=>LIVING[k].w))];
     Object.assign(f,{kind:'living', living:lt}); delete f.target; delete f.endsAt; delete f.dur;
-    S.residents.push(newResident(fi, lt));
     S.gems+=1;
     if(!quiet) showReveal(fi);
   } else {
@@ -344,11 +345,13 @@ function fireRes(r,quiet){
 function stock(fi,si){
   const f=S.floors[fi], sl=f.slots[si];
   if(sl.emp==null||sl.state!=='empty') return;
+  if(isStocking(f)){toast('⏳ '+BIZ[f.biz].name+' can only stock one product at a time');return;}
   const c=stockCost(fi,si);
   if(S.coins<c){toast('Not enough coins to stock 🪙'+fmt(c));return;}
   S.coins-=c; const t=stockTime(fi,si);
   sl.state='stocking'; sl.endsAt=Date.now()+t*1000; sl.dur=t;
 }
+const isStocking = f=>f.slots.some(s=>s.state==='stocking');
 function finishStock(f,si,at,quiet){
   const fi=S.floors.indexOf(f), sl=f.slots[si];
   sl.state='stocked'; sl.qty=prodInfo(fi,si).q; sl.readyAt=at;
@@ -366,17 +369,13 @@ function evict(r){
   if(!r) return;
   if(r.job) fireRes(r,true);
   S.residents=S.residents.filter(x=>x.id!==r.id);
-  S.lastMove=Date.now();
-  toast('📦 '+r.name+' was evicted. A new tenant will move in soon.');
+  toast('📦 '+r.name+' was evicted. New tenants arrive by elevator.');
 }
 const rushGems = sec=>Math.max(1,Math.ceil(sec/60));
-function tryMoveIn(quiet){
-  const opts=[]; S.floors.forEach((f,i)=>{ if(f.kind==='living'){const n=S.residents.filter(r=>r.home===i).length; if(n<LIVING[f.living].cap) opts.push(i);} });
-  if(!opts.length) return false;
-  const fi=pick(opts), r=newResident(fi,S.floors[fi].living); S.residents.push(r);
-  if(!quiet) toast('🧳 '+r.name+' moved into the '+LIVING[S.floors[fi].living].name+' · dreams of '+BIZ[r.dream].emoji+' '+BIZ[r.dream].name+' ★'+r.lvl);
-  return true;
+function vacantFloors(){
+  const o=[]; S.floors.forEach((f,i)=>{ if(f.kind==='living'&&S.residents.filter(r=>r.home===i).length<LIVING[f.living].cap) o.push(i); }); return o;
 }
+function freeRooms(){ return capacity()-S.residents.length-S.queue.filter(q=>q.mover).length-(rt.moverRiding?1:0); }
 
 // ---------- SHOPPERS / VIP ----------
 function vipEligible(type,f,fi){
@@ -395,6 +394,7 @@ function spawnShopper(){
     const types=Object.keys(VIPS).filter(t=>S.floors.some((f,i)=>vipEligible(t,f,i)));
     if(types.length && !S.queue.some(q=>q.vip)){ const t=pick(types); S.queue.push({id:S.nid++, vip:t, em:t==='builder'?'👷'+pick(TONES):VIPS[t].emoji}); return; }
   }
+  if(freeRooms()>0 && Math.random()<0.4){ const v=vacantFloors(); if(v.length){ S.queue.push({id:S.nid++, em:person(), dest:pick(v)+1, mover:true}); return; } }
   const stockedF=[]; S.floors.forEach((f,i)=>{if(f.kind==='business'&&f.slots.some(s=>s.state==='stocked'))stockedF.push(i);});
   let dest;
   if(stockedF.length && Math.random()<0.85) dest=pick(stockedF)+1;
@@ -406,6 +406,7 @@ function ride(){
   const sh=S.queue[0];
   if(sh.vip){openVip(sh.id);return;}
   S.queue.shift();
+  if(sh.mover){ rt.moverRiding=true; goElevator(sh.dest, sh.em+'🧳', ()=>{ rt.moverRiding=false; arriveMover(sh); }); return; }
   goElevator(sh.dest, sh.em, ()=>arriveShopper(sh));
 }
 function perFloor(){return 0.34/(1+0.5*(S.elevLvl-1));}
@@ -423,6 +424,14 @@ function goElevator(dest, em, onArrive){
     setTimeout(()=>{rt.busy=false; renderQueue();}, back*1000+60);
     render();
   }, dur*1000+120);
+}
+function arriveMover(sh){
+  let fi=sh.dest-1; const f=S.floors[fi];
+  const hasRoom=i=>{const g=S.floors[i]; return g&&g.kind==='living'&&S.residents.filter(r=>r.home===i).length<LIVING[g.living].cap;};
+  if(!hasRoom(fi)){ floatText(sh.dest,'No room here 😕'); return; }
+  const r=newResident(fi,f.living); r.em=sh.em; S.residents.push(r);
+  floatText(sh.dest,'🧳 '+r.name+' moved in!');
+  toast('🏠 '+r.name+' moved into the '+LIVING[f.living].name+' · dreams of '+BIZ[r.dream].emoji+' '+BIZ[r.dream].name+' ★'+r.lvl);
 }
 function arriveShopper(sh){
   const fi=sh.dest-1, f=S.floors[fi]; let txt='', total=0;
@@ -485,7 +494,7 @@ function floorHTML(f,i){
     const dream=r&&r.dream===f.biz;
     let st;
     if(!r) st='<div class="st hire">＋ Hire</div>';
-    else if(sl.state==='empty'){const cost=stockCost(i,si); st='<div class="st '+(S.coins>=cost?'stock':'poor')+'">Stock 🪙'+fmt(cost)+'</div>';}
+    else if(sl.state==='empty'){const cost=stockCost(i,si); st=isStocking(f)?'<div class="st poor">⏳ Wait</div>':'<div class="st '+(S.coins>=cost?'stock':'poor')+'">Stock 🪙'+fmt(cost)+'</div>';}
     else if(sl.state==='stocking'){const rem=(sl.endsAt-Date.now())/1000, pct=Math.min(100,100*(1-rem/sl.dur)); st='<div class="stx"><span>📦</span><span id="t-'+i+'-'+si+'">'+fmtT(rem)+'</span></div><div class="bar"><i id="b-'+i+'-'+si+'" style="width:'+pct+'%"></i></div>';}
     else {const q=prodInfo(i,si).q; st='<div class="stx"><span>In stock</span><span id="q-'+i+'-'+si+'">'+sl.qty+'</span></div><div class="bar q"><i id="qb-'+i+'-'+si+'" style="width:'+(100*sl.qty/q)+'%"></i></div>';}
     slots+='<button class="slot'+(r?'':' nohire')+'" data-a="slot" data-f="'+i+'" data-s="'+si+'"><span class="emp">'+(r?r.em:'')+'</span>'+(dream?'<span class="lv">★'+r.lvl+'</span>':'')+
@@ -519,11 +528,11 @@ function renderQueue(){
   if(!S.queue.length) q.innerHTML='<span class="qempty">Waiting for shoppers…</span>';
   else q.innerHTML=S.queue.map(s=>s.vip
     ? '<button class="shopper vip" data-a="vip" data-id="'+s.id+'">'+s.em+'<span class="dn">VIP</span></button>'
-    : '<button class="shopper" data-a="ride">'+s.em+'<span class="dn">'+s.dest+'</span></button>').join('');
+    : '<button class="shopper'+(s.mover?' mover':'')+'" data-a="ride">'+s.em+'<span class="dn">'+(s.mover?'🧳':'')+s.dest+'</span></button>').join('');
   const b=$('#rideBtn'); const front=S.queue[0];
   b.disabled=rt.busy||!front;
   b.classList.toggle('vipride',!!(front&&front.vip));
-  b.innerHTML=rt.busy?'⏳<small>riding…</small>':!front?'▲ RIDE<small>no one</small>':front.vip?'⭐ VIP<small>pick floor</small>':'▲ RIDE<small>to floor '+front.dest+'</small>';
+  b.innerHTML=rt.busy?'⏳<small>riding…</small>':!front?'▲ RIDE<small>no one</small>':front.vip?'⭐ VIP<small>pick floor</small>':front.mover?'🧳 MOVE IN<small>to floor '+front.dest+'</small>':'▲ RIDE<small>to floor '+front.dest+'</small>';
 }
 function floatText(floorNum, txt){
   const el=document.createElement('div'); el.className='float'; el.textContent=txt;
@@ -561,12 +570,12 @@ function showReveal(fi){
   let h;
   if(f.kind==='living'){
     const L=LIVING[f.living];
-    h='<div class="hero">'+L.emoji+'</div><h2 class="center">'+L.name+' opened!</h2><div class="sub center">Floor '+(fi+1)+' · '+L.note+' · +💎1</div><p class="center small">New residents will move in over time. Each one has a dream job — hire them there for big bonuses.</p><button class="btn wide" data-a="close">Great!</button>';
+    h='<div class="hero">'+L.emoji+'</div><h2 class="center">'+L.name+' opened!</h2><div class="sub center">Floor '+(fi+1)+' · '+L.note+' · +💎1</div><p class="center small">New residents arrive by elevator — look for 🧳 movers in the lobby. Each one has a dream job — hire them there for big bonuses.</p><button class="btn wide" data-a="close">Great!</button>';
   } else {
     const b=BIZ[f.biz], dreamers=S.residents.filter(r=>r.dream===b.id).length;
     h='<div class="hero">'+b.emoji+'</div><h2 class="center">'+esc(b.name)+' opened!</h2><div class="sub center">Floor '+(fi+1)+' · '+CATS[b.cat].name+' · +💎1</div>';
     b.products.forEach((p,i)=>{const pi=prodInfo(fi,i); h+='<div class="row"><span class="big">'+p.emoji+'</span><div class="grow"><b>'+esc(p.name)+'</b><div class="small">Stock '+pi.q+' for 🪙'+fmt(pi.cost)+' · sells 🪙'+pi.price+' each</div></div></div>';});
-    h+='<p class="center small">'+(dreamers?'✨ '+dreamers+' resident'+(dreamers>1?'s dream':' dreams')+' of working here!':'No residents dream of working here yet — they may move in soon.')+'</p>';
+    h+='<p class="center small">'+(dreamers?'✨ '+dreamers+' resident'+(dreamers>1?'s dream':' dreams')+' of working here!':'No residents dream of working here yet — look for 🧳 movers in the lobby.')+'</p>';
     h+='<button class="btn wide green" data-a="floor" data-f="'+fi+'">Hire staff</button>';
   }
   openSheet(h,'reveal');
@@ -594,21 +603,20 @@ function openFloor(fi){
     h+='<div class="row"><span class="big">'+p.emoji+'</span><div class="grow"><b>'+esc(p.name)+'</b><div class="small">Sells 🪙'+pi.price+' each · stock '+pi.q+' for 🪙'+fmt(stockCost(fi,si))+(bon?' <s>'+fmt(pi.cost)+'</s>':'')+' · '+fmtT(stockTime(fi,si))+'<br>📦 '+state+'</div>';
     if(r) h+='<div class="small" style="margin-top:4px">'+r.em+' <b style="display:inline">'+esc(r.name)+'</b>'+(bon?' <span class="tag">DREAM ★'+r.lvl+' −'+Math.round(bon*100)+'%</span>':'')+'<br>'+resLine(r)+'</div>';
     h+='</div><div style="display:flex;flex-direction:column;gap:6px">';
-    if(r){ if(sl.state==='empty') h+='<button class="btn green" data-a="stock" data-f="'+fi+'" data-s="'+si+'" '+(S.coins>=stockCost(fi,si)?'':'disabled')+'>Stock</button>';
+    if(r){ if(sl.state==='empty') h+='<button class="btn green" data-a="stock" data-f="'+fi+'" data-s="'+si+'" '+(S.coins>=stockCost(fi,si)&&!isStocking(f)?'':'disabled')+'>Stock</button>';
       if(sl.state==='stocking') h+='<button class="btn gold" data-a="rushs" data-f="'+fi+'" data-s="'+si+'">💎'+rushGems((sl.endsAt-Date.now())/1000)+'</button>';
       h+='<button class="btn ghost" data-a="hireopen" data-f="'+fi+'" data-s="'+si+'">Swap</button><button class="btn red" data-a="fire" data-r="'+r.id+'">Fire</button>'; }
     else h+='<button class="btn" data-a="hireopen" data-f="'+fi+'" data-s="'+si+'">Hire</button>';
     h+='</div></div>';
   });
-  const canAll=f.slots.some((s,si)=>s.emp!=null&&s.state==='empty');
-  if(canAll) h+='<button class="btn wide green" data-a="stockall" data-f="'+fi+'">📦 Stock everything</button>';
+  if(isStocking(f)) h+='<p class="center small">⏳ One product stocks at a time — the next can start when this one finishes.</p>';
   openSheet(h,'floor:'+fi);
 }
 function openHire(fi,si){
   const f=S.floors[fi], b=BIZ[f.biz], p=b.products[si];
   const list=S.residents.filter(r=>!r.job).sort((a,c)=>((c.dream===f.biz)-(a.dream===f.biz))||(c.lvl-a.lvl));
   let h='<h2>Hire for '+p.emoji+' '+esc(p.name)+'</h2><div class="sub">'+b.emoji+' '+esc(b.name)+' · Dream-job workers stock cheaper & faster</div>';
-  if(!list.length) h+='<div class="center"><p class="small">No one is unemployed. Build a <b>Living Space</b> floor so more residents can move in, or wait for vacancies to fill.</p><button class="btn wide" data-a="build">🏗️ Build a floor</button></div>';
+  if(!list.length) h+='<div class="center"><p class="small">No one is unemployed. Build a <b>Living Space</b> floor, then ride 🧳 movers up the elevator to fill it.</p><button class="btn wide" data-a="build">🏗️ Build a floor</button></div>';
   const row=(r,lbl)=>{const dream=r.dream===f.biz; const cur=r.job?BIZ[S.floors[r.job.f].biz]:null; return '<div class="row'+(dream?' dream':'')+'"><span class="big">'+r.em+'</span><div class="grow"><b>'+esc(r.name)+(dream?'<span class="tag">DREAM JOB −'+Math.round(BONUS[r.lvl]*100)+'%</span>':'')+'</b><div class="small">'+resLine(r)+(cur?'<br>💼 Now at '+cur.emoji+' '+esc(cur.name):'')+'</div></div><button class="btn '+(dream?'gold':'')+'" data-a="hire" data-f="'+fi+'" data-s="'+si+'" data-r="'+r.id+'">'+lbl+'</button></div>';};
   list.forEach(r=>{h+=row(r,'Hire');});
   const others=S.residents.filter(r=>r.job&&!(r.job.f===fi&&r.job.s===si)).sort((a,c)=>((c.dream===f.biz)-(a.dream===f.biz))||(c.lvl-a.lvl));
@@ -660,8 +668,9 @@ function openHelp(){
   '<p>🏗️ <b>Build floors</b> upward. Pick a business category (Food & Beverage, Tech, Retail…) or a <b>Living Space</b>. Every new floor costs more.</p>'+
   '<p>🏠 <b>Living Spaces</b> — Apartments, Motel, Hotel, Resort or Villa — house residents. They are your future employees.</p>'+
   '<p>🤝 <b>Hire</b> one employee per product (3 per business). A product can only be stocked once someone works it.</p>'+
-  '<p>👥 <b>Manage staff</b> by tapping a business name: hire, swap or fire. Tap a living floor (or ☰ → Residents) to <b>evict</b> tenants — a new one moves in soon after.</p>'+
-  '<p>📦 <b>Stock</b> a product, wait for it to finish, then it sells to shoppers.</p>'+
+  '<p>👥 <b>Manage staff</b> by tapping a business name: hire, swap or fire. Tap a living floor (or ☰ → Residents) to <b>evict</b> tenants.</p>'+
+  '<p>🧳 <b>New residents</b> only arrive by elevator. Movers wait in the lobby with a green tag — ride them up to their living floor.</p>'+
+  '<p>📦 <b>Stock</b> a product, wait for it to finish, then it sells to shoppers. Each business stocks one product at a time.</p>'+
   '<p>💭 Every resident has a <b>dream job</b> with a skill level ★1–★5. Working their dream job gives a stocking discount and speed boost: ★1 10%, ★2 15%, ★3 25%, ★4 35%, ★5 50%.</p>'+
   '<p>🛗 Tap <b>RIDE</b> to take shoppers up the elevator. They buy products and tip you.</p>'+
   '<p>⭐ <b>VIP shoppers</b> glow gold. Send them to any floor: 👷 finish construction, 🤑 buy out a floor, 🛍️ buy out a product, ⚡ finish stocking, 📦 fully stock a floor.</p>'+
@@ -691,7 +700,6 @@ const A = {
   fire:d=>{ fireRes(res(+d.r)); render(); refreshSheet(); },
   evict:d=>{ const id=+d.r; if(rt.evictArm!==id){ rt.evictArm=id; refreshSheet(); return; } rt.evictArm=null; evict(res(id)); render(); refreshSheet(); },
   stock:d=>{ stock(+d.f,+d.s); render(); refreshSheet(); },
-  stockall:d=>{ const fi=+d.f; S.floors[fi].slots.forEach((s,si)=>{ if(s.emp!=null&&s.state==='empty') stock(fi,si); }); render(); refreshSheet(); },
   rushs:d=>{ const sl=S.floors[+d.f].slots[+d.s]; if(sl.state!=='stocking') return; const g=rushGems((sl.endsAt-Date.now())/1000); if(S.gems<g){toast('Not enough gems 💎');return;} S.gems-=g; sl.endsAt=Date.now(); tick(); refreshSheet(); },
   rushc:d=>{ const f=S.floors[+d.f]; if(f.kind!=='construct') return; const g=rushGems((f.endsAt-Date.now())/1000); if(S.gems<g){toast('Not enough gems 💎');return;} S.gems-=g; f.endsAt=Date.now(); closeSheet(); tick(); },
   elev:()=>{ const c=ELEV_COST[S.elevLvl+1]; if(!c||S.coins<c) return; S.coins-=c; S.elevLvl++; toast('🛗 Elevator upgraded to level '+S.elevLvl+'!'); updateHUD(); openMenu(); },
@@ -710,7 +718,6 @@ function tick(){
     rt.lastSec=now;
     S.floors.forEach(f=>{ if(f.kind==='business') f.slots.forEach((sl,si)=>{ if(sl.state==='stocked'&&Math.random()<1/8) sellUnits(f,si,1); }); });
     if(now-S.lastShop>5000){S.lastShop=now; const before=S.queue.length; spawnShopper(); if(S.queue.length!==before){renderQueue(); const ch=document.querySelector('.lobby .fchip'); if(ch) ch.textContent=S.queue.length+' waiting';}}
-    if(now-S.lastMove>15000){S.lastMove=now; if(tryMoveIn()) changed=true;}
   }
   if(changed||rt.dirty){render(); if(rt.sheet&&rt.sheet!=='reveal'&&rt.sheet!=='vip'&&rt.sheet!=='help') refreshSheet();}
   else updateDynamic();
@@ -728,7 +735,7 @@ function catchUp(){
       if(sl.state==='stocked'){ const start=Math.max(sl.readyAt||last,last); const k=Math.floor(Math.min(now-start,3600e3)/8000); if(k>0){const r=sellUnits(f,si,k); earned+=r.coins; sold+=r.n;} }
     });
   });
-  let moved=0; for(let k=Math.floor(el/15000);k>0;k--){ if(tryMoveIn(true)) moved++; else break; }
+  const moved=0;
   for(let k=0;k<6;k++) spawnShopper();
   S.lastMove=now; S.lastShop=now;
   if(earned||moved) setTimeout(()=>openSheet('<div class="hero">👋</div><h2 class="center">Welcome back!</h2><div class="sub center">While you were away ('+fmtT(el/1000)+')</div>'+
