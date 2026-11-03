@@ -11,7 +11,7 @@ To play online, enable **GitHub Pages** (Settings → Pages → Deploy from bran
 ## How it works
 
 - **Build floors** – Choose one of 8 business categories or a Living Space. Each floor costs more than the last, and the exact business is revealed when construction finishes.
-- **Business categories** – Food & Beverage, Entertainment & Leisure, Healthcare & Wellness, Technology & Software, Retail & E-Commerce, Education & Training, Finance & Professional Services, Construction & Trades (6 businesses each, 3 products each).
+- **Business categories** – Food & Beverage, Entertainment & Leisure, Healthcare & Wellness, Technology & Software, Retail & E-Commerce, Education & Training, Finance & Professional Services, Construction & Trades (18 businesses each — 144 in total — with 3 products each).
 - **Living Spaces** – Apartments, Hotel, Motel, Resort, Villa. Each holds 5 residents; the type sets their skill range. New residents only arrive by elevator — ride 🧳 movers up from the lobby.
 - **Employees** – One employee per product (3 per business). A product can only be stocked once someone is hired, and each business stocks one product at a time.
 - **Dream jobs** – Every resident dreams of a specific business at skill ★1–★5. At their dream job they stock cheaper and faster: 10% / 15% / 25% / 35% / 50%.

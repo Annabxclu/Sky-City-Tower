@@ -227,6 +227,121 @@ const BIZ_DEF = {
     ['wood','Woodcraft Workshop','🪵',[['Bookshelf','📚'],['Dining Table','🍽️'],['Custom Cabinets','🗄️']]]
   ]
 };
+const BIZ_MORE = {
+  food:[
+    ['burger','Cloud Burger','🍔',[['Cheeseburger','🍔'],['Curly Fries','🍟'],['Triple Stack','🥩']]],
+    ['pancake','Flapjack Penthouse','🥞',[['Short Stack','🥞'],['Waffle Tower','🧇'],['Brunch Platter','🍳']]],
+    ['bbq','Smokestack BBQ','🍖',[['Pulled Pork','🥪'],['Smoked Ribs','🍖'],['Brisket Board','🥩']]],
+    ['froyo','Froyo Cloud','🍦',[['Froyo Cup','🍦'],['Sundae Bar','🍨'],['Party Tub','🎂']]],
+    ['cheese','Gouda Times','🧀',[['Cheese Cubes','🧀'],['Grilled Cheese','🥪'],['Fondue Pot','🫕']]],
+    ['seafood','Harbor Lights Seafood','🦞',[['Fish Tacos','🐟'],['Shrimp Basket','🍤'],['Lobster Feast','🦞']]],
+    ['hotdog','Top Dog Stand','🌭',[['Classic Dog','🌭'],['Chili Dog','🌶️'],['Foot-Long Combo','🥤']]],
+    ['smoothie','Blend Society','🥤',[['Berry Blast','🍓'],['Green Machine','🥬'],['Acai Bowl','🫐']]],
+    ['bakery','Rising Dough Bakery','🥐',[['Croissant','🥐'],['Sourdough Loaf','🍞'],['Layer Cake','🎂']]],
+    ['pasta','Noodle Nonna','🍝',[['Spaghetti','🍝'],['Garlic Bread','🥖'],['Tiramisu','🍰']]],
+    ['vegan','Leaf & Root','🥗',[['Grain Bowl','🥗'],['Veggie Wrap','🌯'],['Tasting Menu','🌱']]],
+    ['curry','Spice Route Kitchen','🍛',[['Samosa','🥟'],['Butter Chicken','🍛'],['Thali Platter','🍱']]]
+  ],
+  ent:[
+    ['aquarium','Deep Blue Aquarium','🐠',[['Day Ticket','🎫'],['Shark Tunnel Tour','🦈'],['Dolphin Encounter','🐬']]],
+    ['planet','Starlight Planetarium','🔭',[['Star Show','✨'],['Telescope Night','🔭'],['Galaxy Dome Pass','🌌']]],
+    ['minigolf','Putt Party','⛳',[['9 Holes','⛳'],['18 Holes','🏌️'],['Glow Golf Night','💡']]],
+    ['billiard','Cue Club','🎱',[['Table Hour','🎱'],['Trick Shot Class','🎯'],['League Night','🏆']]],
+    ['climb','Vertical Limit Climbing','🧗',[['Bouldering Pass','🧗'],['Harness Rental','🪢'],['Summit Course','🏔️']]],
+    ['casino','Lucky Seven Lounge','🎰',[['Dice Roll','🎲'],['Card Table','🃏'],['High Roller Suite','👑']]],
+    ['museum','Wonder Museum','🏛️',[['Gallery Pass','🖼️'],['Dino Exhibit','🦖'],['Night at the Museum','🌙']]],
+    ['circus','Big Top Circus','🎪',[['Clown Show','🤡'],['Acrobat Act','🤸'],['Ringmaster Seats','🎩']]],
+    ['theater','Broadway Heights','🎟️',[['Matinee','🎟️'],['Musical','🎵'],['Opening Night','🌹']]],
+    ['haunt','Fright Floor','🎃',[['Spooky Walk','🎃'],['Zombie Maze','🧟'],['Midnight Scream','💀']]],
+    ['wavepool','Wave Pool Paradise','🌊',[['Pool Pass','🏊'],['Water Slide','🌊'],['Cabana Rental','⛱️']]],
+    ['nightclub','Neon Nights Club','🪩',[['Cover Charge','🎫'],['Glow Sticks','✨'],['VIP Booth','🍾']]]
+  ],
+  health:[
+    ['eye','Clear View Optometry','👓',[['Eye Exam','👁️'],['Glasses','👓'],['Contact Lenses','🔍']]],
+    ['pharmacy','Corner Pharmacy','⚕️',[['Bandages','🩹'],['Cough Syrup','🧴'],['Prescription','💊']]],
+    ['barber','Fresh Fade Barbers','💈',[['Beard Trim','🧔'],['Classic Cut','✂️'],['Hot Towel Shave','💈']]],
+    ['salon','Shine Hair Salon','💇',[['Blowout','💨'],['Hair Color','🎨'],['Bridal Style','👰']]],
+    ['boxing','Knockout Boxing','🥊',[['Jump Rope Class','🪢'],['Sparring Session','🥊'],['Fight Camp','🏆']]],
+    ['dojo','Dragon Dojo','🥋',[['Trial Class','🥋'],['Belt Test','🎖️'],['Black Belt Course','🐉']]],
+    ['physio','Bounce Back Physio','🦴',[['Stretch Session','🤸'],['Ice Therapy','🧊'],['Rehab Program','🦵']]],
+    ['nutrition','Nourish Nutrition','🥦',[['Meal Plan','🥗'],['Juice Cleanse','🧃'],['Coaching Package','📋']]],
+    ['pediatric','Little Steps Pediatrics','👶',[['Well Visit','🩺'],['Vaccines','💉'],['Growth Check','📏']]],
+    ['meditate','Calm Corner Meditation','🕯️',[['Guided Session','🎧'],['Sound Bath','🔔'],['Silent Retreat','🕯️']]],
+    ['swim','Aqua Fit Center','🏊',[['Lap Swim','🏊'],['Aqua Aerobics','💦'],['Swim Lessons','🛟']]],
+    ['sleep','Dream Sleep Clinic','😴',[['Sleep Quiz','📝'],['Pillow Fitting','🛏️'],['Overnight Study','🌙']]]
+  ],
+  tech:[
+    ['cyber','Cyber Lounge','🖥️',[['WiFi Hour','📶'],['Gaming PC Hour','🖥️'],['LAN Party','🎮']]],
+    ['gamestudio','Pixel Pop Games','👾',[['Indie Game','👾'],['Game DLC','🧩'],['Console Hit','🏆']]],
+    ['anim','Inkwell Animation','🎞️',[['Short Clip','🎞️'],['Cartoon Episode','📺'],['Feature Film','🎬']]],
+    ['lab','Quantum Lab','⚛️',[['Lab Test','🧪'],['Research Paper','📄'],['Breakthrough','💡']]],
+    ['robotics','Bolt Robotics','🦾',[['Robot Pet','🐕'],['Helper Bot','🦾'],['Mech Suit','🛡️']]],
+    ['secure','Firewall Security','🔒',[['Password Vault','🔑'],['Security Cams','📹'],['Cyber Shield','🛡️']]],
+    ['print3d','Layer Up 3D Printing','🖨️',[['Keychain Print','🔑'],['Figurine','🗿'],['Prototype','⚙️']]],
+    ['holo','Holo Deck VR','🌀',[['VR Demo','🥽'],['Holo Game','🌐'],['Full Immersion','🌀']]],
+    ['orbit','Orbit Satellite Co.','🛰️',[['GPS Tracker','📍'],['Sat Phone','📡'],['Satellite Launch','🛰️']]],
+    ['datacenter','Big Data Center','💽',[['Data Backup','💽'],['Server Rack','🗄️'],['Analytics Suite','📈']]],
+    ['silicon','Silicon Peak','🔋',[['Microchip','🔲'],['Circuit Board','🟩'],['Super Processor','⚡']]],
+    ['stream','Stream Station','📡',[['Live Stream','🔴'],['Podcast Edit','🎙️'],['Studio Package','🎛️']]]
+  ],
+  retail:[
+    ['books','Page Turner Books','📚',[['Paperback','📖'],['Comic Issue','💥'],['Collector Box Set','📚']]],
+    ['candy','Sugar Rush Candy','🍬',[['Gummy Bears','🍬'],['Lollipop','🍭'],['Chocolate Box','🍫']]],
+    ['pets','Paws & Claws Pet Shop','🐾',[['Fish Food','🐟'],['Cat Tower','🐈'],['Puppy Bed','🐕']]],
+    ['jewel','Sparkle Jewelers','💍',[['Charm Bracelet','📿'],['Earrings','✨'],['Diamond Ring','💍']]],
+    ['watch','Tick Tock Timepieces','🕰️',[['Watch Band','⌚'],['Pocket Watch','🕰️'],['Luxury Watch','⏱️']]],
+    ['bike','Spoke & Pedal Bikes','🚲',[['Bike Bell','🔔'],['Helmet','⛑️'],['Mountain Bike','🚵']]],
+    ['surf','Wave Rider Surf Shop','🏄',[['Sunscreen','🧴'],['Wetsuit','🩱'],['Surfboard','🏄']]],
+    ['grocery','Fresh Basket Grocers','🥕',[['Fruit Bag','🍎'],['Weekly Groceries','🥕'],['Party Platter','🍱']]],
+    ['hats','Top Hat Boutique','🎩',[['Beanie','🧢'],['Sun Hat','👒'],['Top Hat','🎩']]],
+    ['furniture','Cozy Nest Furniture','🛋️',[['Lamp','🪔'],['Armchair','🪑'],['Sofa Set','🛋️']]],
+    ['nursery','Green Thumb Nursery','🪴',[['Succulent','🌵'],['Fern','🌿'],['Bonsai Tree','🌳']]],
+    ['motors','Skyline Motors','🚗',[['Car Wash','🧽'],['Used Car','🚙'],['Sports Car','🏎️']]]
+  ],
+  edu:[
+    ['dance','Spotlight Dance Academy','💃',[['Hip Hop Class','🕺'],['Ballet Course','🩰'],['Recital','💃']]],
+    ['culinary','Whisk Culinary School','🍳',[['Knife Skills','🔪'],['Baking Class','🧁'],['Chef Diploma','🎓']]],
+    ['photo','Shutter Photo School','📸',[['Camera Basics','📷'],['Portrait Class','🖼️'],['Pro Portfolio','📸']]],
+    ['filmschool','Clapboard Film School','🎥',[['Editing Class','✂️'],['Short Film Lab','🎥'],['Directing Course','📣']]],
+    ['science','Eureka Science Center','🧬',[['Volcano Kit','🌋'],['Robotics Club','🤖'],['Science Fair Prep','🏅']]],
+    ['driving','Green Light Driving School','🚦',[['Permit Prep','📝'],['Road Lesson','🚗'],['License Test','🪪']]],
+    ['chess','Checkmate Chess Club','♟️',[['Puzzle Pack','♟️'],['Strategy Class','🧠'],['Grandmaster Camp','👑']]],
+    ['pottery','Spin & Glaze Pottery','🏺',[['Mug Class','☕'],['Wheel Workshop','🏺'],['Kiln Course','🔥']]],
+    ['library','Skyline Library','🏫',[['Story Time','📖'],['Book Club','📚'],['Research Pass','🗂️']]],
+    ['bizschool','Launchpad Business School','📊',[['Pitch Workshop','🗣️'],['MBA Prep','📈'],['Startup Incubator','🚀']]],
+    ['signlang','Hands Up Sign Language','🤟',[['Alphabet Class','🔤'],['Conversation Club','💬'],['Interpreter Course','🤝']]],
+    ['lifesaver','Lifesaver Training','⛑️',[['CPR Class','❤️'],['First Aid Kit','🩹'],['Lifeguard Course','🛟']]]
+  ],
+  fin:[
+    ['exchange','Sky Stock Exchange','💹',[['Trade Ticket','🎫'],['Market Report','📰'],['IPO Launch','🔔']]],
+    ['travel','Wanderlust Travel','🌍',[['Weekend Trip','🚗'],['Cruise Deal','🛳️'],['World Tour','✈️']]],
+    ['realty','Keystone Realty','🏘️',[['Home Tour','🔑'],['Condo Listing','🏢'],['Penthouse Sale','🌆']]],
+    ['ledger','Ledger & Co. Accounting','📒',[['Bookkeeping','📒'],['Payroll','💵'],['Annual Audit','🔍']]],
+    ['consult','Big Idea Consulting','💡',[['Strategy Call','📞'],['Team Workshop','📋'],['Turnaround Plan','📈']]],
+    ['detective','Magnifier Investigations','🕵️',[['Background Check','📁'],['Stakeout','🔦'],['Case Closed','🔍']]],
+    ['notary','Seal & Stamp Notary','🖋️',[['Notary Stamp','🖋️'],['Passport Photos','🛂'],['Deed Filing','📜']]],
+    ['shipping','Ship It Center','📮',[['Envelope','✉️'],['Box Shipping','📦'],['Overnight Freight','🚛']]],
+    ['credit','Credit Clinic','💳',[['Credit Report','📃'],['Budget Plan','🧮'],['Debt Freedom Plan','🕊️']]],
+    ['staffing','Hire Power Staffing','🤝',[['Resume Polish','📄'],['Job Match','🤝'],['Exec Search','🎯']]],
+    ['chapel','Forever Wedding Chapel','💒',[['Vow Renewal','💍'],['Small Ceremony','💐'],['Grand Wedding','👰']]],
+    ['translate','Global Words Translation','🌐',[['Document','📄'],['Live Interpreter','🎧'],['Global Launch','🌍']]]
+  ],
+  constr:[
+    ['mechanic','Grease Monkey Garage','🔧',[['Oil Change','🛢️'],['Brake Job','🛞'],['Engine Rebuild','⚙️']]],
+    ['roofing','Top Notch Roofing','🪜',[['Gutter Clean','🍂'],['Shingle Repair','🪜'],['New Roof','🏠']]],
+    ['glass','Crystal Clear Glass','🪟',[['Window Repair','🪟'],['Glass Door','🚪'],['Skylight','☀️']]],
+    ['welding','Iron Forge Welding','⚒️',[['Railing','🛠️'],['Gate','🚧'],['Steel Beam','🏗️']]],
+    ['hvac','Cool Breeze HVAC','❄️',[['Filter Swap','🌬️'],['AC Tune-up','❄️'],['Heat Pump','🔥']]],
+    ['tile','Tile Style','🔲',[['Backsplash','🔲'],['Floor Tiles','🟫'],['Mosaic','🎨']]],
+    ['landscape','Green Acres Landscaping','🌳',[['Lawn Mow','🌱'],['Garden Bed','🌷'],['Backyard Makeover','🏡']]],
+    ['locksmith','Key Master Locksmith','🔑',[['Key Copy','🔑'],['Lock Change','🔒'],['Smart Lock','📲']]],
+    ['clockworks','Gear & Chime Clockworks','⏳',[['Clock Battery','🔋'],['Clock Repair','🕰️'],['Grandfather Clock','⏳']]],
+    ['blueprint','Blueprint Architects','📐',[['Floor Plan','📐'],['3D Model','🧊'],['Skyscraper Design','🏙️']]],
+    ['skylift','Sky Lift Cranes','🏗️',[['Lift Hour','🏗️'],['Heavy Haul','🚚'],['Tower Crane','🗼']]],
+    ['recycle','Second Life Recycling','♻️',[['Can Drive','🥫'],['Scrap Metal','🔩'],['Eco Rebuild','♻️']]]
+  ]
+};
+for (const c in BIZ_MORE) BIZ_DEF[c].push(...BIZ_MORE[c]);
 const BIZ = {}; const BIZ_LIST = [];
 for (const cat in BIZ_DEF) BIZ_DEF[cat].forEach(([id,name,emoji,prods])=>{
   const b = {id,cat,name,emoji,products:prods.map(([n,e])=>({name:n,emoji:e}))};
@@ -278,7 +393,7 @@ function newGame(){
 function newResident(home, lt){
   const L = LIVING[lt];
   const built = S.floors.filter(f=>f.kind==='business').map(f=>f.biz);
-  const dream = (built.length && Math.random()<0.55) ? pick(built) : pick(BIZ_LIST).id;
+  const dream = (built.length && Math.random()<0.2) ? pick(built) : pick(BIZ_LIST).id;
   return {id:S.nid++, name:pick(NAMES)+' '+pick('ABCDEFGHJKLMNPRSTW'.split(''))+'.', em:person(), dream, lvl:1+wIndex(L.lv), home, job:null};
 }
 const res = id=>S.residents.find(r=>r.id===id);
